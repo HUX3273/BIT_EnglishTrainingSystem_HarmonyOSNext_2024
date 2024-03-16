@@ -16,18 +16,17 @@ struct PictureBookPage {
       Row(){
         // 返回
         Row(){
-          Image($r('app.media.app_icon'))
+          Image($r('app.media.ic_back'))
             .width(30)
             .height(30)
-            .margin({top:36,left:30})
+            .margin({left:10})
             .onClick(() => {
               // 页面跳转
               this.backToMainPage()
             })
         }
         .width('33.33%')
-        .height(60)
-        .backgroundColor('#FFF111')
+        .height(40)
 
         // 标题
         Row(){
@@ -35,27 +34,28 @@ struct PictureBookPage {
             .fontSize(25)
             .fontWeight(FontWeight.Medium)
             .fontWeight(FontWeight.Medium)
-            .margin({ top: 36})
+
         }
         .width('33.33%')
-        .height(60)
+        .height(40)
         .justifyContent(FlexAlign.Center)
-        .backgroundColor('#FF1111')
 
-        // 其他
-        Row(){
 
-        }
-        .width('33.33%')
-        .height(60)
-        .backgroundColor('#7BB2F4')
-
+        //
 
 
       }
       .width('100%')
+      .height('5%')
+
+
+      Column(){
+
+      }
+
 
     }
+    .height('100%')
 
   }
 }

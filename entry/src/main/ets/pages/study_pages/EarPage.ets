@@ -51,6 +51,7 @@ struct EarPage {
 
       }
       .width('100%')
+      .height('5%')
 
 
       List() {

@@ -1,6 +1,7 @@
 import MainViewModel from '../viewmodel/MainViewModel';
 import ItemData from '../viewmodel/MainPageGrid';
 import router from '@ohos.router';
+import MainPageGrid from '../viewmodel/MainPageGrid';
 
 @Entry
 @Component
@@ -71,12 +72,12 @@ struct MainPage {
 
       // 显示6个功能模块
       Grid() {
-        ForEach(MainViewModel.getGridData(), (item: ItemData) => {
+        ForEach(MainViewModel.getGridData(), (item: MainPageGrid) => {
           GridItem() {
             Column() {
               Image(item.img)
-                .width(90)
-                .height(90)
+                .width(100)
+                .height(100)
               Text(item.title)
                 .fontSize(20)
                 .fontWeight(FontWeight.Medium)
@@ -93,7 +94,7 @@ struct MainPage {
 
           })
 
-        }, (item: ItemData) => JSON.stringify(item))
+        }, (item: MainPageGrid) => JSON.stringify(item))
       }
       .columnsTemplate('1fr 1fr 1fr')
       .rowsTemplate('1fr 1fr')

@@ -5,15 +5,20 @@ import CommonConstants from '../common/constants/CommonConstants'
 import connection from '@ohos.net.connection';
 import cryptoFramework from '@ohos.security.cryptoFramework';
 import { AddToShinyCardDialog } from './AddToShinyCard';
+import { VideoPlayer } from './MediaPlayer';
 
 
 @CustomDialog
 export struct WordTranslatorDialog {
+
+  private audioSrc:string = 'http://music.163.com/song/media/outer/url?id=447925558.mp3';
   @Link word: string;   // 单词
   @State transResult_chinese: string = '';
   @Consume isChosenArr: Array<Boolean>;
   @Consume chosenWordIndex: number;
 
+  // 发音控制器
+  pronunciationController: VideoController = new VideoController();
 
 
   //新建添加到闪卡的窗口控制器
@@ -40,7 +45,7 @@ export struct WordTranslatorDialog {
 
 
   aboutToAppear() {
-    this.getTranslation();  // TODO 改成从后端获取翻译结果
+    this.getTranslation();  // TODO 改成从后端获取翻译结果和音频信息
 
   }
 
@@ -59,17 +64,33 @@ export struct WordTranslatorDialog {
 
       Column(){
         Row(){
-          // 单词
-          Text(this.word)
-            .fontSize(35)
-            .fontWeight(FontWeight.Bold)
-            .margin({ top: 20, bottom: 10, left: 20 })
+
+          Row(){
+            // 单词
+            Text(this.word)
+              .fontSize(30)
+              .fontWeight(FontWeight.Bold)
+              .margin({ left: 20 })
+
+            // 播放读音
+            VideoPlayer({
+              videoSrc: this.audioSrc,
+              controller: this.pronunciationController,
+              mediaType: '我的发音'
+            })
+              .width(35)
+              .height(35)
+              .margin({ left: 10 })
+
+          }
+          .height(60)
+
 
 
           // 添加到闪卡
           Image($r('app.media.add'))
-            .height(40)
-            .width(40)
+            .height(25)
+            .width(25)
             .margin({ top: 10, bottom: 10, right: 20 })
             .onClick(()=>{
 
@@ -100,6 +121,7 @@ export struct WordTranslatorDialog {
       Image($r('app.media.icon'))
         .height(150)
         .width(150)
+
 
       // 单词的英文释义
       Text('####英文释义待获取####')
@@ -188,6 +210,8 @@ export struct WordTranslatorDialog {
         console.info("====翻译结果:" + transResult)
 
         this.transResult_chinese = transResult;
+
+        // this.audioSrc = ''
       }
     })
 
