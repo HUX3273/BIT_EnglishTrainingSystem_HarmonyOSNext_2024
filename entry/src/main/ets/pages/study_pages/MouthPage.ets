@@ -1,0 +1,70 @@
+import router from '@ohos.router';
+import { MultiMediaModule } from '../../view/MultiMediaIndexModule';
+@Entry
+@Component
+struct MouthPage {
+  @State title: string = '磨嘴巴'
+
+  backToMainPage():void{
+    router.replaceUrl({
+      url: 'pages/MainPage',
+    });
+  }
+
+  build() {
+    Column(){
+      Row(){
+        // 返回
+        Row(){
+          Image($r('app.media.ic_back'))
+            .width(30)
+            .height(30)
+            .margin({left:10})
+            .onClick(() => {
+              // 页面跳转
+             this.backToMainPage()
+            })
+        }
+        .width('33.33%')
+        .height(40)
+
+        // 标题
+        Row(){
+          Text(this.title)
+            .fontSize(25)
+            .fontWeight(FontWeight.Medium)
+            .fontWeight(FontWeight.Medium)
+
+        }
+        .width('33.33%')
+        .height(40)
+        .justifyContent(FlexAlign.Center)
+
+
+
+      // 其他
+        Row(){
+
+        }
+        .width('33.33%')
+        .height(60)
+
+
+      }
+      .width('100%')
+
+
+      List() {
+        ListItem() {
+          MultiMediaModule({ moduleName: '我的视频' })
+            .margin({ top: 12 })
+        }
+
+      }
+      .listDirection(Axis.Vertical)
+      .margin({ top: 18 })
+
+    }
+
+  }
+}
