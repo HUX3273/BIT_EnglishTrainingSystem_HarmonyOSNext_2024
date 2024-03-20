@@ -1,4 +1,5 @@
 import router from '@ohos.router';
+import { PictureBookModule } from '../../view/PictureBookIndexModule';
 @Entry
 @Component
 struct PictureBookPage {
@@ -49,9 +50,16 @@ struct PictureBookPage {
       .height('5%')
 
 
-      Column(){
+      List() {
+        ListItem() {
+          PictureBookModule({ moduleName: '我的绘本' })
+            .margin({ top: 20 })
+
+        }
 
       }
+      .listDirection(Axis.Vertical)
+      .margin({ top: 18 })
 
 
     }

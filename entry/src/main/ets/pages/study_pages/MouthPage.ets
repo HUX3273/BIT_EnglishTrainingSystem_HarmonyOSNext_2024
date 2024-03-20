@@ -58,12 +58,12 @@ struct MouthPage {
       List() {
         ListItem() {
           MultiMediaModule({ moduleName: '我的视频' })
-            .margin({ top: 12 })
+            .margin({ top: 20 })
         }
 
       }
       .listDirection(Axis.Vertical)
-      .margin({ top: 18 })
+      .margin({ top: 20 })
 
     }
 

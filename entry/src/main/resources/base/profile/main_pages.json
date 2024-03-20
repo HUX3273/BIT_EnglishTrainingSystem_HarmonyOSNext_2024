@@ -4,6 +4,7 @@
     "pages/MainPage",
     "pages/WebPage",
     "pages/SimpleMediaPlay",
+    "pages/PictureBookReader",
     "pages/study_pages/MouthPage",
     "pages/study_pages/EyePage",
     "pages/study_pages/ShinyCardPage",

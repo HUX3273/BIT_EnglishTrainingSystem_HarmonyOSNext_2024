@@ -74,6 +74,7 @@ struct Play {
         .backgroundColor('#FFFFFF')
         .height("5%")
 
+
         // 视频区
         Stack() {
 

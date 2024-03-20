@@ -75,7 +75,7 @@ struct ShinyCardPage {
       .width('100%')
 
 
-      if( this.pageIndex < ShinyCardWords.length && this.reviewDone == false ){
+      if( this.pageIndex < ShinyCardWords.length && this.reviewDone == false &&ShinyCardWords[this.pageIndex].done == false ){
 
         // 单词+图片+释义+按钮
         Column() {

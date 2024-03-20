@@ -15,3 +15,21 @@ export class HorizontalMultiMediaItem {
     this.name = name;
   }
 }
+
+
+@Observed
+export class HorizontalPictureBookItem{
+  id: number;
+  coverImgSrc: string;
+  bookSrc: Array<string>;
+  name: string;
+
+
+  constructor(id: number, coverImgSrc: string, bookSrc: Array<string>,name: string) {
+    this.id = id;
+    this.coverImgSrc = coverImgSrc;
+    this.bookSrc = bookSrc;
+    this.name = name;
+  }
+
+}

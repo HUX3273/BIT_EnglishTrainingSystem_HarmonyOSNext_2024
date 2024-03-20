@@ -3,6 +3,7 @@ import { HorizontalMultiMediaItem } from '../viewmodel/HorizontalMultiMediaItem'
 import router from '@ohos.router';
 
 
+// 视频与音频
 @Component
 export struct MultiMediaModule {
   private moduleName: string = '';
@@ -51,8 +52,6 @@ export struct MultiMediaModule {
       }
 
 
-
-
     }
     .margin({
       left: '3.3%',
@@ -68,6 +67,9 @@ export struct MultiMediaModule {
 }
 
 
+
+
+// 绘本
 @Component
 struct HorizontalItem {
   private imageSrc: Resource = $r('app.string.empty');
