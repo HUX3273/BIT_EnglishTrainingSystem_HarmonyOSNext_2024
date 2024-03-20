@@ -3,6 +3,7 @@
     "pages/LoginPage",
     "pages/MainPage",
     "pages/WebPage",
+    "pages/TestPage",
     "pages/SimpleMediaPlay",
     "pages/PictureBookReader",
     "pages/study_pages/MouthPage",

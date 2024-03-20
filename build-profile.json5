@@ -1,6 +1,20 @@
 {
   "app": {
-    "signingConfigs": [],
+    "signingConfigs": [
+      {
+        "name": "default",
+        "type": "HarmonyOS",
+        "material": {
+          "certpath": "C:\\Users\\HUX\\.ohos\\config\\auto_debug_Demo_com.example.demo_80086000142491918.cer",
+          "storePassword": "0000001A33B7A233444543CBB4CB70AED875C2700F641FA231F0D3FC2310A786FFFBDDDF950A94FECE3A",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001A0B9F3BFFCBF8C37CC981A146F009E0A44DAD43E400C37F107DA0E236CFF713F65B42D262605B",
+          "profile": "C:\\Users\\HUX\\.ohos\\config\\auto_debug_Demo_com.example.demo_80086000142491918.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:\\Users\\HUX\\.ohos\\config\\auto_debug_Demo_com.example.demo_80086000142491918.p12"
+        }
+      }
+    ],
     "compileSdkVersion": 9,
     "compatibleSdkVersion": 9,
     "products": [

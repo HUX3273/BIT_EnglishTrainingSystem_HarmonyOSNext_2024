@@ -1,88 +1,75 @@
-// xxx.ets
-@CustomDialog
-struct CustomDialogExample {
-  @Link textValue: string
-  @Link inputValue: string
-  controller: CustomDialogController
-  // 若尝试在CustomDialog中传入多个其他的Controller，以实现在CustomDialog中打开另一个或另一些CustomDialog，那么此处需要将指向自己的controller放在最后
-  cancel: () => void
-  confirm: () => void
+class ItemData {
+  name: string
+  isSelect: boolean
 
-  build() {
-    Column() {
-      Text('Change text').fontSize(20).margin({ top: 10, bottom: 10 })
-      TextInput({ placeholder: '', text: this.textValue }).height(60).width('90%')
-        .onChange((value: string) => {
-          this.textValue = value
-        })
-      Text('Whether to change a text?').fontSize(16).margin({ bottom: 10 })
-      Image($r('app.media.icon'))
-      .width('20%')
-      .height('20%')
-      Flex({ justifyContent: FlexAlign.SpaceAround }) {
-        Button('cancel')
-          .onClick(() => {
-            this.controller.close()
-            this.cancel()
-          }).backgroundColor(0xffffff).fontColor(Color.Black)
-        Button('confirm')
-          .onClick(() => {
-            this.inputValue = this.textValue
-            this.controller.close()
-            this.confirm()
-          }).backgroundColor(0xffffff).fontColor(Color.Red)
-      }.margin({ bottom: 10 })
-    }
-    // dialog默认的borderRadius为24vp，如果需要使用border属性，请和borderRadius属性一起使用。
+  constructor(name, isSelect) {
+    this.name = name
+    this.isSelect = isSelect
   }
 }
 
 @Entry
 @Component
-struct CustomDialogUser {
-  @State textValue: string = ''
-  @State inputValue: string = 'click me'
-  dialogController: CustomDialogController = new CustomDialogController({
-    builder: CustomDialogExample({
-      cancel: this.onCancel,
-      confirm: this.onAccept,
-      textValue: $textValue,
-      inputValue: $inputValue
-    }),
-    cancel: this.existApp,
-    autoCancel: true,
-    alignment: DialogAlignment.Center,
-    offset: { dx: 0, dy: -20 },
-    gridCount: 4,
-    customStyle: false
-  })
+struct test {
+  @State arr: Array<ItemData> = [
+    new ItemData('赵大', false),
+    new ItemData('钱二', false),
+    new ItemData('张三', false),
+    new ItemData('李四', false),
+    new ItemData('王五', false),
+    new ItemData('周六', false),
+    new ItemData('李七', false),
+    new ItemData('朱八', false)
+  ]
 
-  // 在自定义组件即将析构销毁时将dialogControlle删除和置空
-  aboutToDisappear() {
-    delete this.dialogController, // 删除dialogController
-    this.dialogController = undefined // 将dialogController置空
-  }
-
-  onCancel() {
-    console.info('Callback when the first button is clicked')
-  }
-
-  onAccept() {
-    console.info('Callback when the second button is clicked')
-  }
-
-  existApp() {
-    console.info('Click the callback in the blank area')
-  }
+  @State selectedArr:Array<string> = []
 
   build() {
     Column() {
-      Button(this.inputValue)
+      ForEach(this.arr, (item: ItemData, index: number) => {
+        Row() {
+          Checkbox()
+            .enabled(false)
+            .select(item.isSelect)
+          Text(item.name).fontSize(30)
+        }
         .onClick(() => {
-          if (this.dialogController != undefined) {
-            this.dialogController.open()
+          console.info('====item', JSON.stringify(item))
+          console.info('====index', index)
+          item.isSelect = !item.isSelect
+          let isSelectCuont = 0 //已选中的数目
+          for (let i = 0;i < this.arr.length; i++) {
+            if (this.arr[i].isSelect) {
+              isSelectCuont++
+
+            }
           }
-        }).backgroundColor(0x317aff)
-    }.width('100%').margin({ top: 5 })
+          if (isSelectCuont > 5) {
+            item.isSelect = !item.isSelect
+            console.info('====当前选中的超过5个了，也就是6个了，需要把已选的数据再设置回去。')
+            return;
+          }
+          //更新显示状态
+          this.arr[index] = new ItemData(item.name, item.isSelect)
+          if(this.arr[index].isSelect == true){
+            if(this.selectedArr.indexOf(item.name) == -1){
+              this.selectedArr.push(item.name)
+              console.info('====压入 '+item.name+' ,selectedArr：'+this.selectedArr)
+            }
+
+          } else  if(this.arr[index].isSelect == false){
+            if(this.selectedArr.indexOf(item.name) != -1){
+              this.selectedArr.splice(this.selectedArr.indexOf(item.name),1)
+              console.info('====弹出 '+item.name+' ,selectedArr：'+this.selectedArr)
+
+            }
+          }
+
+        })
+
+      })
+
+    }
+
   }
 }

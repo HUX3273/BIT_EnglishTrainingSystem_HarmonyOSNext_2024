@@ -107,10 +107,10 @@ struct MainPage {
       .margin({top:10})
 
 
-      Button('web test entrance')
+      Button('TestPage entrance')
         .onClick(() => {
         router.pushUrl({
-          url: 'pages/WebPage',
+          url: 'pages/TestPage',
 
         });
       })
