@@ -56,6 +56,9 @@ struct MainPage {
             .onClick(() => {
               //TODO 登出功能
               // 跳转登出页面
+              router.replaceUrl({
+                url: 'pages/LoginPage',
+              });
 
             })
         }
