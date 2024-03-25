@@ -9,40 +9,42 @@ struct MainPage {
   @State message: string = 'Hello World'
   @State paramsFromLoginPage: object = router.getParams()
 
-  pageJump(desPage: String):void{
-    router.replaceUrl({
-      url: 'pages/study_pages/'+ desPage,
+  pageJump(desPage: String): void {
+    router.pushUrl({
+      url: 'pages/study_pages/' + desPage,
 
     });
 
-}
+  }
 
+  onPageShow() {
+
+  }
 
   build() {
-    Column(){
-      Row(){
+    Column() {
+      Row() {
         //TODO 显示用户头像
-        Row(){
+        Row() {
           Image($r('app.media.user_default'))
             .width(70)
             .height(70)
-            .margin({top:50,left:'10%'})
+            .margin({ top: 50, left: '10%' })
 
           //TODO 显示用户名
           Text(this.paramsFromLoginPage?.['userAccount'])
             .fontSize(30)
-            .margin({top:50,left:20})
+            .margin({ top: 50, left: 20 })
         }
         .width('50%')
 
 
-
-        Row(){
+        Row() {
 
           Image($r('app.media.rank'))
             .width(70)
             .height(70)
-            .margin({top:50,right:30})
+            .margin({ top: 50, right: 30 })
             .onClick(() => {
               //TODO 排名功能
               // 跳转到排名页面
@@ -52,7 +54,7 @@ struct MainPage {
           Image($r('app.media.logout'))
             .width(70)
             .height(70)
-            .margin({top:50,right:'10%'})
+            .margin({ top: 50, right: '10%' })
             .onClick(() => {
               //TODO 登出功能
               // 跳转登出页面
@@ -65,12 +67,9 @@ struct MainPage {
         .justifyContent(FlexAlign.End)
         .width('50%')
 
-
-
       }
       .width('100%')
-      .margin({top:26})
-
+      .margin({ top: 26 })
 
 
       // 显示6个功能模块
@@ -103,20 +102,28 @@ struct MainPage {
       .rowsTemplate('1fr 1fr')
       .columnsGap(18)
       .rowsGap(18)
-      .padding({ top:30,bottom:30,left:10,right:10 })
+      .padding({ top: 30, bottom: 30, left: 10, right: 10 })
       .backgroundColor(Color.White)
       .borderRadius(24)
       .height('70%')
-      .margin({top:10})
+      .margin({ top: 10 })
 
 
+      // 测试按钮
       Button('TestPage entrance')
         .onClick(() => {
-        router.pushUrl({
-          url: 'pages/TestPage',
 
-        });
-      })
+          let simpleName = AppStorage.SetAndLink('simplePropName',"你好")
+
+          console.info('====测试：' + simpleName)
+
+          router.pushUrl({
+            url: 'pages/TestPage',
+
+          });
+
+
+        })
 
 
     }

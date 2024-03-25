@@ -11,11 +11,13 @@ struct PictureBookReader {
   private FULL_SCREEN_BAR_HEIGHT: string = '0%'
   private DEFAULT_CANVAS_HEIGHT: string = '75%'
   private DEFAULT_BAR_HEIGHT: string = '20%'
+
   @State indexStart: number = 0; // 用于通过点击下栏的预览图片将画布转到到对应页数，并更新bookIndexNow
   @State bookIndexNow: number = 0; // 用于指示画布所在页
   @State canvasHeight: string = this.DEFAULT_CANVAS_HEIGHT;
   @State barHeight: string = this.DEFAULT_BAR_HEIGHT;
   @State scaleValue: number = 1
+
   @State pinchValue: number = 1
   @State pinchX: number = 0
   @State pinchY: number = 0
