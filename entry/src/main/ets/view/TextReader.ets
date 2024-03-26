@@ -16,9 +16,10 @@ export struct TextReader {
   @Provide chosenWordIndex: number = 0;
 
   // 正则表达式
-  private rExpForSplit:RegExp = /[]/;
-  private rExpForPunctuation: RegExp = /[.?!]/;     //用于检测“.”换行
+  private rExpForSplit:RegExp = /[ \n\t]/; //用于分词
+  private rExpForPunctuation: RegExp = /[.。!！?？]/;     //用于检测符号换行
   private rExpForWord: RegExp = /[a-zA-Z0-9]+/;   //用于提取单词
+  //private rExpForNewline: RegExp = /[A-Z]/;  //用于匹配大写首字母然后换行
 
   scroller: Scroller = new Scroller();
 
@@ -65,8 +66,8 @@ export struct TextReader {
     //this.readfile_from_rawfile();
 
     // 分词
-    //this.wordArr = this.subtitleText.split(this.rExpForSplit);
-    this.wordArr = this.subtitleText.split(" ");
+    this.wordArr = this.subtitleText.split(this.rExpForSplit);
+    //this.wordArr = this.subtitleText.split(" ");
 
     //初始化 isChosenArr 数组
     for (let index = 0; index < this.wordArr.length; index++) {
@@ -106,22 +107,29 @@ export struct TextReader {
               .fontWeight(FontWeight.Bold)
               .onClick(() => {
 
-                this.chosenWordIndex = index;
-                this.isChosenArr[index] = true
 
-                this.word = item.match(this.rExpForWord)[0]
+                if(item.match(this.rExpForWord) != null){
 
-                console.info('====您点击了单词：', this.word)
 
-                // Prompt.showDialog({
-                //   title:this.word,
-                //   message:'翻译内容展示',
-                //
-                // })
+                  this.chosenWordIndex = index;
+                  this.isChosenArr[index] = true
 
-                //弹出自定义的窗口
-                if (this.dialogController_translator != undefined) {
-                  this.dialogController_translator.open()
+
+                  this.word = item.match(this.rExpForWord)[0]
+                  console.info('====您点击了单词：', this.word)
+
+                  // Prompt.showDialog({
+                  //   title:this.word,
+                  //   message:'翻译内容展示',
+                  //
+                  // })
+
+                  //弹出自定义的窗口
+                  if (this.dialogController_translator != undefined) {
+                    this.dialogController_translator.open()
+                  }
+
+
                 }
 
               })
@@ -150,13 +158,13 @@ export struct TextReader {
 
 
 
-
             // 将单词排版成完整的文本
             if (this.rExpForPunctuation.test(item)) {
               Span('\n') //添加换行符
             } else {
               Span(' ') //添加空格
             }
+
 
 
 
