@@ -4,6 +4,7 @@ import { MultiMediaModule } from '../../view/MultiMediaIndexModule';
 @Component
 struct EarPage {
   @State title: string = '磨耳朵'
+
   backToMainPage():void{
     router.replaceUrl({
       url: 'pages/MainPage',

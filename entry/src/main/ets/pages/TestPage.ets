@@ -1,3 +1,4 @@
+import router from '@ohos.router';
 import PreferencesUtil from '../common/database/Preferencesutil';
 
 
@@ -26,9 +27,14 @@ struct test {
   // ]
   //
   // @State selectedArr:Array<string> = []
-
+  backToMainPage():void{
+    router.replaceUrl({
+      url: 'pages/MainPage',
+    });
+  }
 
   @State changeFontSize:number = 0;
+  @State userName:string = '';
 
   onPageShow() {
     // 在HomePage的onPageShow方法，调用PreferencesUtil.getChangeFontSize方法获取用户数据，调用get方法获取
@@ -36,12 +42,48 @@ struct test {
       this.changeFontSize = value;
 
     });
+    PreferencesUtil.getUserName().then((value) => {
+      this.userName = value;
+
+    });
+
+
+
   }
 
 
 
   build() {
     Column() {
+      Row(){
+        // 返回
+        Row(){
+          Image($r('app.media.ic_back'))
+            .width(30)
+            .height(30)
+            .margin({left:10})
+            .onClick(() => {
+              // 页面跳转
+              this.backToMainPage()
+            })
+        }
+        .width('33.33%')
+        .height(40)
+
+        // 标题
+        Row(){
+          Text(this.userName)
+            .fontSize(25)
+            .fontWeight(FontWeight.Medium)
+            .fontWeight(FontWeight.Medium)
+
+        }
+        .width('33.33%')
+        .height(40)
+        .justifyContent(FlexAlign.Center)
+      }
+      .width('100%')
+      .height('5%')
       // ForEach(this.arr, (item: ItemData, index: number) => {
       //   Row() {
       //     Checkbox()
@@ -93,13 +135,33 @@ struct test {
 
         this.changeFontSize = this.changeFontSize + 5
 
+
         PreferencesUtil.saveChangeFontSize(this.changeFontSize);
 
-
-
-
       })
-      
+
+      TextInput()
+        .onChange((value: string) => {
+          this.userName = value;
+
+          PreferencesUtil.saveUserName(this.userName);
+
+
+        })
+        .type(InputType.Normal)
+
+
+      Button("删除用户名")
+        .onClick(()=>{
+          PreferencesUtil.deleteUserName()
+          //PreferencesUtil.saveDefaultAll()
+
+          PreferencesUtil.getUserName().then((value)=>{
+            this.userName = value
+          })
+
+
+        })
       
       
     }

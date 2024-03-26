@@ -15,11 +15,11 @@ export default class EntryAbility extends UIAbility {
     globalThis.abilityWant = want;
 
     // 创建首选项
-    PreferencesUtil.createFontPreferences(this.context);
+    PreferencesUtil.createAllPreferences(this.context);
 
 
-    // 设置字体默认大小
-    PreferencesUtil.saveDefaultFontSize(10);
+    // 设置默认首选项数据
+    PreferencesUtil.saveDefaultAll(10,'默认用户','');
 
   }
 

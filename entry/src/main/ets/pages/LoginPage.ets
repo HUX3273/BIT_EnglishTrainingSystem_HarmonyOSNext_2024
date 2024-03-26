@@ -5,6 +5,7 @@ import CommonConstants from '../common/constants/CommonConstants'
 import { LoginBySmsArgs } from '../net/request/LoginBySmsArgs';
 import LoginResponse from '../common/constants/LoginResponse';
 import { UserInfo } from '../model/UserInfo';
+import PreferencesUtil from '../common/database/PreferencesUtil';
 
 @Entry
 @Component
@@ -142,10 +143,11 @@ struct LoginPage {
       setTimeout(()=>{
         if (this.loginSucceed) {
           this.isShowProgress = false;
-          router.pushUrl({
+          router.replaceUrl({
             url: 'pages/MainPage',
             params: {
-              userAccount: this.account
+              // userAccount: this.account,
+              // userName: this.userInfo.avatar
             }
           })
         } else {
@@ -282,9 +284,10 @@ struct LoginPage {
         console.info("====getUserInfo error code:" + err.code)
         console.info("====getUserInfo error message:" + err.message)
       } else {
+
         //清求成功
         let json_string = JSON.stringify(data.result)
-        console.info("====getUserInfo result:" + json_string)
+        console.info("====UserInfo:" + json_string)
 
         this.userInfo = JSON.parse(JSON.parse(json_string))
 
@@ -292,10 +295,11 @@ struct LoginPage {
           console.info("====userId:" + this.userInfo.id)
         }
 
-        //TODO 数据持久化
 
 
-
+        // 数据持久化
+        PreferencesUtil.saveUserName(this.userInfo.childrenName)
+        PreferencesUtil.saveToken(this.token)
 
 
 
