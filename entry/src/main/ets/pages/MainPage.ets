@@ -4,27 +4,37 @@ import MainPageGrid from '../viewmodel/MainPageGrid';
 import router from '@ohos.router';
 import PreferencesUtil from '../common/database/PreferencesUtil';
 import promptAction from '@ohos.promptAction';
+import CommonConstants from '../common/constants/CommonConstants';
+import http from '@ohos.net.http';
+import { GetTrainingListArgs } from '../net/request/GetTrainingListArgs';
 
 @Entry
 @Component
 struct MainPage {
   @State message: string = 'Hello World'
   @State userName: string = ''
-  //@State paramsFromLoginPage: object = router.getParams()
+  @State token: string = ''
+
 
   pageJump(desPage: String): void {
     router.pushUrl({
       url: 'pages/study_pages/' + desPage,
-
+      params:{
+        token:this.token
+      }
     });
-
   }
 
   onPageShow() {
     PreferencesUtil.getUserName().then((value) => {
       this.userName = value;
-
     });
+
+    PreferencesUtil.getToken().then((value) => {
+      this.token = value
+    });
+
+
   }
 
   build() {
@@ -85,6 +95,7 @@ struct MainPage {
                     fontColor: '#D94838',
                     action: () => {
                       console.info('====确认登出');
+                      this.logout_HTTP()
                       // 跳转登出页面
                       router.replaceUrl({
                         url: 'pages/LoginPage',
@@ -168,4 +179,49 @@ struct MainPage {
     .width('100%')
 
   }
+
+
+  // 在后台把本token注销
+  logout_HTTP() {
+    console.info('====获取用户信息')
+
+    let url = CommonConstants.API_HOST + "client/api/logout"
+
+    let httpRequest_logout = http.createHttp();
+    httpRequest_logout.request(
+      // 请求url地址
+      url,
+      {
+        // 请求方式
+        method: http.RequestMethod.GET,
+
+        // 可选，默认为60s
+        connectTimeout: 60000,
+        // 可选，默认为60s
+        readTimeout: 60000,
+        // 开发者根据自身业务需要添加header字段
+        header: {
+          'Cookie': 'SESSION_ID=' + this.token,
+          'Content-Type': 'application/json'
+        },
+
+      }, (err, data) => {
+      if (err) {
+        //请求失嫩
+        console.info("====logout_HTTP error code:" + err.code)
+        console.info("====logout_HTTP error message:" + err.message)
+      } else {
+
+        // 请求失嫩
+        console.info("====退出登录成功" + data.responseCode)
+
+        // 删除用户数据
+        PreferencesUtil.deleteToken()
+        PreferencesUtil.deleteUserName()
+
+
+      }
+    })
+  }
+
 }

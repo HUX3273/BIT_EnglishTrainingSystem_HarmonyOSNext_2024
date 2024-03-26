@@ -2,6 +2,10 @@ import router from '@ohos.router';
 import { VideoPlayer } from '../view/MediaPlayer';
 import util from '@ohos.util';
 import { TextReader } from '../view/TextReader';
+import { Training } from '../model/Training';
+import PreferencesUtil from '../common/database/PreferencesUtil';
+import http from '@ohos.net.http';
+import CommonConstants from '../common/constants/CommonConstants';
 
 
 @Entry
@@ -10,9 +14,15 @@ struct Play {
   private mediaSrc: string = (router.getParams() as Record<string, Object>).mediaSrc as string;
   private mediaName: string = (router.getParams() as Record<string, Object>).mediaName as string;
   private mediaType: string = (router.getParams() as Record<string, Object>).mediaType as string;
+  private mediaId: number = (router.getParams() as Record<string, Object>).mediaId as number;
   private startIconResource: Resource = $r('app.media.ic_play');
   private backIconResource: Resource = $r('app.media.ic_back');
   private textFullScreen: Boolean = true;
+
+  private token:string;
+  private subtitleUrl:string;
+  private subtitleText:string;
+
   @State mediaPlayerHeight: string = '0%';
   @State textReaderHeight: string = '0%';
   @State exchangeFullScreenIcon: Resource = $r('app.media.up')
@@ -24,19 +34,31 @@ struct Play {
   @Provide flag: boolean = false;
 
   aboutToAppear() {
-
     if (this.mediaType == '我的视频') {
       this.textFullScreen = false
     } else if (this.mediaType == '我的音频') {
       this.textFullScreen = true
     }
-
     this.exchangeShowMode();
 
+    PreferencesUtil.getToken().then((value) => {
+      this.token = value
+    });
+
+  }
+
+  onPageShow() {
+
+
+    this.getSubtitle_HTTP()
   }
 
   onPageHide() {
     this.controller.pause();
+
+    // TODO 同步该视频的播放进度到后台
+
+
   }
 
   build() {
@@ -55,20 +77,36 @@ struct Play {
                 router.back();
               })
           }
-          .width('33.33%')
+          .width('10%')
           .height(40)
 
           // 展示视频标题
           Row() {
             Text(this.mediaName)
-              .fontSize(25)
+              .fontSize(18)
               .fontWeight(FontWeight.Medium)
               .fontWeight(FontWeight.Medium)
 
           }
-          .width('33.33%')
           .height(40)
+          .width('80%')
           .justifyContent(FlexAlign.Center)
+
+          Row() {
+            Image($r('app.media.add'))
+              .width(30)
+              .height(30)
+              .onClick(() => {
+
+                // TODO 点击右上角加号自己添加单词到闪卡中
+
+
+              })
+          }
+          .height(40)
+          .width('10%')
+          //.justifyContent(FlexAlign.Center)
+
         }
         .width('100%')
         .backgroundColor('#FFFFFF')
@@ -120,37 +158,34 @@ struct Play {
 
       Column() {
 
-          Column() {
+        Column() {
 
-            // 文本全屏or缩回按钮
-            Row(){
-              Image(this.exchangeFullScreenIcon)
-                .height(25)
-                .width(40)
-            }
-            .width('100%')
-            .backgroundColor('#FFE6DA')
-            .onClick(() => {
-
-              this.exchangeShowMode();
-
-              this.textFullScreen = !this.textFullScreen;
-
-            })
-            .justifyContent(FlexAlign.Center)
-
-
-            // 文本阅读器
-            TextReader({
-              videoName: this.mediaName
-            })
-              //.height('95%')
-              .width('95%')
-
+          // 文本全屏or缩回按钮
+          Row() {
+            Image(this.exchangeFullScreenIcon)
+              .height(25)
+              .width(40)
           }
+          .width('100%')
+          .backgroundColor('#FFE6DA')
+          .onClick(() => {
+
+            this.exchangeShowMode();
+
+            this.textFullScreen = !this.textFullScreen;
+
+          })
+          .justifyContent(FlexAlign.Center)
 
 
+          // 文本阅读器
+          TextReader({
+            videoName: this.mediaName
+          })
+            //.height('95%')
+            .width('95%')
 
+        }
 
       }
       .height(this.textReaderHeight)
@@ -167,11 +202,11 @@ struct Play {
    */
   exchangeShowMode() {
     if (this.textFullScreen == true) {
-      if(this.mediaType=='我的音频'){
+      if (this.mediaType == '我的音频') {
         this.mediaPlayerHeight = '5%'
         this.textReaderHeight = '90%'
         this.exchangeFullScreenIcon = $r('app.media.down')
-      } else if(this.mediaType=='我的视频'){
+      } else if (this.mediaType == '我的视频') {
         this.mediaPlayerHeight = '30%'
         this.textReaderHeight = '65%'
         this.exchangeFullScreenIcon = $r('app.media.down')
@@ -222,6 +257,101 @@ struct Play {
       }, 100);
     }
   }
+
+  getSubtitle_HTTP() {
+    console.info('==== 获取该视频/音频字幕文件URL')
+
+    let url = CommonConstants.API_HOST + "client/api/userFile/subtitle/" + this.mediaId
+
+    let httpRequest_getSubtitle = http.createHttp();
+    httpRequest_getSubtitle.request(
+      // 请求url地址
+      url,
+      {
+        // 请求方式
+        method: http.RequestMethod.GET,
+
+        // 可选，默认为60s
+        connectTimeout: 60000,
+        // 可选，默认为60s
+        readTimeout: 60000,
+        // 开发者根据自身业务需要添加header字段
+        header: {
+          'Cookie': 'SESSION_ID=' + this.token,
+          'Content-Type': 'application/json'
+        },
+
+      }, (err, data) => {
+      if (err) {
+        //请求失嫩
+        console.info("==== getSubtitle_HTTP error code:" + err.code)
+        console.info("==== getSubtitle_HTTP error message:" + err.message)
+      } else {
+
+        //清求成功
+        let json_string = JSON.stringify(data.result)
+
+
+        this.subtitleUrl = JSON.parse(json_string)
+
+        console.info("==== 字幕文件地址:" + this.subtitleUrl)
+
+        this.downloadFile_HTTP()
+
+      }
+
+
+    })
+
+  }
+
+
+  downloadFile_HTTP(){
+    // TODO 根据这个  this.subtitleUrl 链接把字幕文件下载到本地
+    console.info('==== 通过URL下载字幕文件')
+    let url_download = this.subtitleUrl
+    let httpRequest_download = http.createHttp();
+    httpRequest_download.request(
+      // 请求url地址
+      url_download,
+      {
+        // 请求方式
+        method: http.RequestMethod.GET,
+
+        // 可选，默认为60s
+        connectTimeout: 60000,
+        // 可选，默认为60s
+        readTimeout: 60000,
+        // 开发者根据自身业务需要添加header字段
+        header: {
+          'Content-Type': 'application/json'
+        },
+
+      }, (err, data) => {
+      if (err) {
+        //请求失嫩
+        console.info("==== downloadFile_HTTP error code:" + err.code)
+        console.info("==== downloadFile_HTTP error message:" + err.message)
+      } else {
+
+
+
+        // 怎么把取到的数据存下来？？？
+
+
+
+
+
+
+
+
+
+      }
+    })
+
+  }
+
+
 }
 
 

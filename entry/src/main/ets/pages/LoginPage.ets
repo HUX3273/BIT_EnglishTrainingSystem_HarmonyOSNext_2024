@@ -64,7 +64,7 @@ struct LoginPage {
             .onClick(() => {
               // 请求验证码
               if (this.account != '' && this.getCodeInCD == false) {
-                this.getValidCode()
+                this.getValidCode_HTTP()
                 this.getCodeInCD = true
                 this.textTimerController.start()
               } else if (this.account == '') {
@@ -138,7 +138,7 @@ struct LoginPage {
       this.isShowProgress = true;
 
       // 登录
-      this.loginBySms()
+      this.loginBySms_HTTP()
 
       setTimeout(()=>{
         if (this.loginSucceed) {
@@ -165,7 +165,7 @@ struct LoginPage {
 
 
   // 请求验证码
-  public getValidCode() {
+  public getValidCode_HTTP() {
 
     console.info('====请求验证码')
     let httpRequest_getCode = http.createHttp();
@@ -189,7 +189,7 @@ struct LoginPage {
   }
 
   // 通过验证码登录
-  public loginBySms() {
+  public loginBySms_HTTP() {
 
     console.info('====验证码登录')
 
@@ -225,23 +225,23 @@ struct LoginPage {
       }, (err, data) => {
       if (err) {
         // 请求失嫩
-        console.info("====loginBySms error code:" + err.code)
-        console.info("====loginBySms error message:" + err.message)
+        console.info("==== loginBySms_HTTP error code:" + err.code)
+        console.info("==== loginBySms_HTTP error message:" + err.message)
       } else {
         // 请求成功
         let json_string = JSON.stringify(data.result)
-        console.info("====loginBySms result:" + json_string)
+        console.info("==== result:" + json_string)
 
         var loginResponse: LoginResponse = JSON.parse(JSON.parse(json_string))
         this.token = loginResponse.token
         this.paidMember = loginResponse.paidMember
 
-        console.info("====token:" + this.token)
+        console.info("==== token:" + this.token)
 
         if (this.token != undefined){
           // 登录成功获取用户信息
           this.loginSucceed = true
-          this.getUserInfo()
+          this.getUserInfo_HTTP()
         }
 
 
@@ -254,7 +254,7 @@ struct LoginPage {
 
 
 
-  public getUserInfo() {
+  public getUserInfo_HTTP() {
 
     console.info('====获取用户信息')
 
@@ -281,20 +281,18 @@ struct LoginPage {
       }, (err, data) => {
       if (err) {
         //请求失嫩
-        console.info("====getUserInfo error code:" + err.code)
-        console.info("====getUserInfo error message:" + err.message)
+        console.info("====getUserInfo_HTTP error code:" + err.code)
+        console.info("====getUserInfo_HTTP error message:" + err.message)
       } else {
 
         //清求成功
         let json_string = JSON.stringify(data.result)
-        console.info("====UserInfo:" + json_string)
 
         this.userInfo = JSON.parse(JSON.parse(json_string))
 
-        if(this.loginSucceed == true){
-          console.info("====userId:" + this.userInfo.id)
-        }
 
+        console.info("====phone:" + this.userInfo.phone)
+        console.info("====children name:" + this.userInfo.childrenName)
 
 
         // 数据持久化

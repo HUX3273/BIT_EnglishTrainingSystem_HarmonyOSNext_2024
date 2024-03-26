@@ -80,7 +80,7 @@ export class PreferencesUtil {
       preferences.has(KEY_TOKEN).then(async (isExist: boolean) => {
         Logger.info(TAG, '====preferences has token is ' + isExist);
         if (!isExist) {
-          await preferences.put(KEY_TOKEN, userName);
+          await preferences.put(KEY_TOKEN, token);
           preferences.flush();
         }
       }).catch((err: Error) => {
