@@ -16,10 +16,15 @@ export struct TextReader {
   @Provide chosenWordIndex: number = 0;
 
   // 正则表达式
-  private rExpForPunctuation: RegExp = /[.]/;     //用于检测“.”换行
+  private rExpForSplit:RegExp = /[]/;
+  private rExpForPunctuation: RegExp = /[.?!]/;     //用于检测“.”换行
   private rExpForWord: RegExp = /[a-zA-Z0-9]+/;   //用于提取单词
 
   scroller: Scroller = new Scroller();
+
+
+  private subtitleText:string;
+
 
   //新建单击查词的窗口控制器
   dialogController_translator: CustomDialogController = new CustomDialogController({
@@ -56,7 +61,18 @@ export struct TextReader {
 
   // 读测试的字幕文件
   aboutToAppear() {
-    this.readfile_from_rawfile();
+
+    //this.readfile_from_rawfile();
+
+    // 分词
+    //this.wordArr = this.subtitleText.split(this.rExpForSplit);
+    this.wordArr = this.subtitleText.split(" ");
+
+    //初始化 isChosenArr 数组
+    for (let index = 0; index < this.wordArr.length; index++) {
+      this.isChosenArr[index] = false;
+
+    }
 
   }
 
@@ -77,6 +93,10 @@ export struct TextReader {
         //Text(this.mediaName)
         // Text(this.caption)
         //   .fontSize(20)
+
+
+        // Text(this.subtitleText)
+        // .fontSize(50)
 
         Text() {
           ForEach(this.wordArr, (item: string, index: number) => {
@@ -175,16 +195,6 @@ export struct TextReader {
       let str = textDecoder.decode(new Uint8Array(uint8Array));
 
       this.caption = str;
-
-      // 分词
-      this.wordArr = this.caption.split(" ");
-
-      //初始化 isChosenArr 数组
-      for (let index = 0; index < this.wordArr.length; index++) {
-        this.isChosenArr[index] = false;
-
-      }
-
 
     } catch (error) {
       console.info("====Error Happened While Reading Files From Raw Files!")

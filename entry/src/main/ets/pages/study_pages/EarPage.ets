@@ -24,6 +24,10 @@ struct EarPage {
 
   onPageShow() {
 
+    PreferencesUtil.getToken().then((value) => {
+      this.token = value
+    });
+
     this.getTrainingList_HTTP()
 
   }

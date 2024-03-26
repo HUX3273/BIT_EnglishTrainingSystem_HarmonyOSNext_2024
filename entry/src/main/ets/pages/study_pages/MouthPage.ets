@@ -4,14 +4,16 @@ import CommonConstants from '../../common/constants/CommonConstants';
 import { MultiMediaModule } from '../../view/MultiMediaIndexModule';
 import { GetTrainingListArgs } from '../../net/request/GetTrainingListArgs';
 import { Training } from '../../model/Training';
+import PreferencesUtil from '../../common/database/PreferencesUtil';
 @Entry
 @Component
 struct MouthPage {
   @State title: string = '磨嘴巴'
 
-  @State token: string = (router.getParams() as Record<string, Object>).token as string;
+  @Provide token: string = (router.getParams() as Record<string, Object>).token as string;
 
   @Provide training:Array<Training> = []
+
 
   backToMainPage():void{
     router.replaceUrl({
@@ -20,7 +22,11 @@ struct MouthPage {
   }
 
 
-  onPageShow() {
+  aboutToAppear() {
+
+    PreferencesUtil.getToken().then((value) => {
+      this.token = value
+    });
 
     this.getTrainingList_HTTP()
 

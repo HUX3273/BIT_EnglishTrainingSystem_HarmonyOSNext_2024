@@ -2,17 +2,24 @@ import { HORIZONTAL_AUDIOS, HORIZONTAL_VIDEOS } from '../viewmodel/MultiMediaDat
 import { HorizontalMultiMediaItem } from '../viewmodel/HorizontalMultiMediaItem';
 import router from '@ohos.router';
 import { Training } from '../model/Training';
+import PreferencesUtil from '../common/database/PreferencesUtil';
+import CommonConstants from '../common/constants/CommonConstants';
+import http from '@ohos.net.http';
 
 
 // 视频与音频
 @Component
 export struct MultiMediaModule {
   private moduleName: string = '';
+  public token: string = '';
+  @Consume training: Array<Training>;
 
-  @Consume training:Array<Training>;
+  aboutToAppear() {
+    PreferencesUtil.getToken().then((value) => {
+      this.token = value
+    });
 
-
-
+  }
 
   build() {
     Column() {
@@ -36,14 +43,13 @@ export struct MultiMediaModule {
               mediaSrc: item.clientUserResourceFile.ossPath,
               mediaName: item.clientUserResourceFile.fileName,
               mediaType: this.moduleName,
-              mediaId: item.clientUserResourceFile.id
+              mediaId: item.clientUserResourceFile.id,
+              token: this.token,
             })
-              .margin({left:8,right:8,bottom:10})
+              .margin({ left: 8, right: 8, bottom: 10 })
               .backgroundColor("#ffffff")
               .borderRadius(24)
           }
-
-
 
         }, (item: HorizontalMultiMediaItem) => JSON.stringify(item))
       }
@@ -62,23 +68,36 @@ export struct MultiMediaModule {
 }
 
 
-// 绘本
+
+//
 @Component
 struct HorizontalItem {
   private imageSrc: string = '';
   private mediaSrc: string = '';
   private mediaName: string = '';
   private mediaType: string = '';
-  private mediaId: number ;
+  private mediaId: number;
+  private token: string = '';
+  private subtitleText: string = '';
+  private subtitleUrl: string;
 
+  aboutToAppear() {
+    // PreferencesUtil.getToken().then((value) => {
+    //   this.token = value
+    // });
+
+    this.getSubtitle_HTTP()
+
+
+  }
 
   build() {
     Column() {
-      Flex(){
+      Flex() {
         Image(this.imageSrc)
           .width(150)
           .height(104)
-          .margin({left:8,right:5})
+          .margin({ left: 8, right: 5 })
           .borderRadius(24)
           .backgroundColor("#ffaeabab")
         Text(this.mediaName)
@@ -94,7 +113,7 @@ struct HorizontalItem {
 
     }
     .justifyContent(FlexAlign.Center)
-    .margin({bottom:10,top:10})
+    .margin({ bottom: 10, top: 10 })
     .onClick(() => {
       // 点击后播放对应影片
       router.pushUrl({
@@ -103,11 +122,102 @@ struct HorizontalItem {
           mediaSrc: this.mediaSrc,
           mediaName: this.mediaName,
           mediaType: this.mediaType,
-          mediaId: this.mediaId
+          mediaId: this.mediaId,
+          token: this.token,
+          subtitleText: this.subtitleText
         } });
     })
 
   }
 
+  getSubtitle_HTTP() {
+    console.info('==== 获取该视频/音频字幕文件URL')
+    console.info('==== token:' + this.token)
+    let url = CommonConstants.API_HOST + "client/api/userFile/subtitle/" + this.mediaId
+
+    let httpRequest_getSubtitle = http.createHttp();
+    httpRequest_getSubtitle.request(
+      // 请求url地址
+      url,
+      {
+        // 请求方式
+        method: http.RequestMethod.GET,
+
+        // 可选，默认为60s
+        connectTimeout: 60000,
+        // 可选，默认为60s
+        readTimeout: 60000,
+        // 开发者根据自身业务需要添加header字段
+        header: {
+          'Cookie': 'SESSION_ID=' + this.token,
+          'Content-Type': 'application/json'
+        },
+
+      }, (err, data) => {
+      if (err) {
+        //请求失嫩
+        console.info("==== getSubtitle_HTTP error code:" + err.code)
+        console.info("==== getSubtitle_HTTP error message:" + err.message)
+      } else {
+
+        //清求成功
+        let json_string = JSON.stringify(data.result)
+
+
+        this.subtitleUrl = JSON.parse(json_string)
+
+        console.info("==== 取字幕url的结果：" + this.subtitleUrl)
+
+
+        this.downloadFile_HTTP()
+      }
+
+
+    })
+
+
+  }
+
+  downloadFile_HTTP() {
+    // TODO 根据这个  this.subtitleUrl 链接把字幕文件下载到本地
+    console.info('==== 通过URL下载字幕文件')
+    let url_download = this.subtitleUrl
+    let httpRequest_download = http.createHttp();
+    httpRequest_download.request(
+      // 请求url地址
+      url_download,
+      {
+        // 请求方式
+        method: http.RequestMethod.GET,
+
+        // 可选，默认为60s
+        connectTimeout: 60000,
+        // 可选，默认为60s
+        readTimeout: 60000,
+        // 开发者根据自身业务需要添加header字段
+        header: {
+          'Content-Type': 'application/json'
+        },
+
+      }, (err, data) => {
+      if (err) {
+        //请求失嫩
+        console.info("==== downloadFile_HTTP error code:" + err.code)
+        console.info("==== downloadFile_HTTP error message:" + err.message)
+      } else {
+
+
+        // TODO 怎么把下载的数据读出来
+        setTimeout(() => {
+          this.subtitleText = data.result.toString()
+          if (this.subtitleText != '')
+            console.info('==== 字幕：' + 123)
+        }, 10)
+
+
+      }
+    })
+
+  }
 }
 

@@ -4,6 +4,7 @@ import CommonConstants from '../../common/constants/CommonConstants';
 import { MultiMediaModule } from '../../view/MultiMediaIndexModule';
 import { GetTrainingListArgs } from '../../net/request/GetTrainingListArgs';
 import { Training } from '../../model/Training';
+import PreferencesUtil from '../../common/database/PreferencesUtil';
 @Entry
 @Component
 struct EyePage {
@@ -21,6 +22,10 @@ struct EyePage {
 
 
   onPageShow() {
+
+    PreferencesUtil.getToken().then((value) => {
+      this.token = value
+    });
 
     this.getTrainingList_HTTP()
 

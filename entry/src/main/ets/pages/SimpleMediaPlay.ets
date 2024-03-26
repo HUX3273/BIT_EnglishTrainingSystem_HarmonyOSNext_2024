@@ -15,13 +15,14 @@ struct Play {
   private mediaName: string = (router.getParams() as Record<string, Object>).mediaName as string;
   private mediaType: string = (router.getParams() as Record<string, Object>).mediaType as string;
   private mediaId: number = (router.getParams() as Record<string, Object>).mediaId as number;
+  // private token:string = (router.getParams() as Record<string, Object>).token as string;
+  private subtitleText:string=(router.getParams() as Record<string, Object>).subtitleText as string;
+  private subtitleUrl:string;
+
   private startIconResource: Resource = $r('app.media.ic_play');
   private backIconResource: Resource = $r('app.media.ic_back');
   private textFullScreen: Boolean = true;
 
-  private token:string;
-  private subtitleUrl:string;
-  private subtitleText:string;
 
   @State mediaPlayerHeight: string = '0%';
   @State textReaderHeight: string = '0%';
@@ -41,16 +42,10 @@ struct Play {
     }
     this.exchangeShowMode();
 
-    PreferencesUtil.getToken().then((value) => {
-      this.token = value
-    });
-
   }
 
   onPageShow() {
-
-
-    this.getSubtitle_HTTP()
+    // this.getSubtitle_HTTP()
   }
 
   onPageHide() {
@@ -180,7 +175,8 @@ struct Play {
 
           // 文本阅读器
           TextReader({
-            videoName: this.mediaName
+            videoName: this.mediaName,
+            subtitleText: this.subtitleText
           })
             //.height('95%')
             .width('95%')
@@ -258,99 +254,104 @@ struct Play {
     }
   }
 
-  getSubtitle_HTTP() {
-    console.info('==== 获取该视频/音频字幕文件URL')
-
-    let url = CommonConstants.API_HOST + "client/api/userFile/subtitle/" + this.mediaId
-
-    let httpRequest_getSubtitle = http.createHttp();
-    httpRequest_getSubtitle.request(
-      // 请求url地址
-      url,
-      {
-        // 请求方式
-        method: http.RequestMethod.GET,
-
-        // 可选，默认为60s
-        connectTimeout: 60000,
-        // 可选，默认为60s
-        readTimeout: 60000,
-        // 开发者根据自身业务需要添加header字段
-        header: {
-          'Cookie': 'SESSION_ID=' + this.token,
-          'Content-Type': 'application/json'
-        },
-
-      }, (err, data) => {
-      if (err) {
-        //请求失嫩
-        console.info("==== getSubtitle_HTTP error code:" + err.code)
-        console.info("==== getSubtitle_HTTP error message:" + err.message)
-      } else {
-
-        //清求成功
-        let json_string = JSON.stringify(data.result)
-
-
-        this.subtitleUrl = JSON.parse(json_string)
-
-        console.info("==== 字幕文件地址:" + this.subtitleUrl)
-
-        this.downloadFile_HTTP()
-
-      }
-
-
-    })
-
-  }
-
-
-  downloadFile_HTTP(){
-    // TODO 根据这个  this.subtitleUrl 链接把字幕文件下载到本地
-    console.info('==== 通过URL下载字幕文件')
-    let url_download = this.subtitleUrl
-    let httpRequest_download = http.createHttp();
-    httpRequest_download.request(
-      // 请求url地址
-      url_download,
-      {
-        // 请求方式
-        method: http.RequestMethod.GET,
-
-        // 可选，默认为60s
-        connectTimeout: 60000,
-        // 可选，默认为60s
-        readTimeout: 60000,
-        // 开发者根据自身业务需要添加header字段
-        header: {
-          'Content-Type': 'application/json'
-        },
-
-      }, (err, data) => {
-      if (err) {
-        //请求失嫩
-        console.info("==== downloadFile_HTTP error code:" + err.code)
-        console.info("==== downloadFile_HTTP error message:" + err.message)
-      } else {
-
-
-
-        // 怎么把取到的数据存下来？？？
-
-
-
-
-
-
-
-
-
-      }
-    })
-
-  }
-
+  // getSubtitle_HTTP() {
+  //   console.info('==== 获取该视频/音频字幕文件URL')
+  //   console.info('==== token:'+this.token)
+  //   let url = CommonConstants.API_HOST + "client/api/userFile/subtitle/" + this.mediaId
+  //
+  //   let httpRequest_getSubtitle = http.createHttp();
+  //   httpRequest_getSubtitle.request(
+  //     // 请求url地址
+  //     url,
+  //     {
+  //       // 请求方式
+  //       method: http.RequestMethod.GET,
+  //
+  //       // 可选，默认为60s
+  //       connectTimeout: 60000,
+  //       // 可选，默认为60s
+  //       readTimeout: 60000,
+  //       // 开发者根据自身业务需要添加header字段
+  //       header: {
+  //         'Cookie': 'SESSION_ID=' + this.token,
+  //         'Content-Type': 'application/json'
+  //       },
+  //
+  //     }, (err, data) => {
+  //     if (err) {
+  //       //请求失嫩
+  //       console.info("==== getSubtitle_HTTP error code:" + err.code)
+  //       console.info("==== getSubtitle_HTTP error message:" + err.message)
+  //     } else {
+  //
+  //       //清求成功
+  //       let json_string = JSON.stringify(data.result)
+  //
+  //
+  //       this.subtitleUrl = JSON.parse(json_string)
+  //
+  //       console.info("==== 取字幕url的结果：" + this.subtitleUrl)
+  //
+  //
+  //       this.downloadFile_HTTP()
+  //     }
+  //
+  //
+  //   })
+  //
+  //
+  //
+  //
+  // }
+  //
+  //
+  // downloadFile_HTTP(){
+  //   // TODO 根据这个  this.subtitleUrl 链接把字幕文件下载到本地
+  //   console.info('==== 通过URL下载字幕文件')
+  //   let url_download = this.subtitleUrl
+  //   let httpRequest_download = http.createHttp();
+  //   httpRequest_download.request(
+  //     // 请求url地址
+  //     url_download,
+  //     {
+  //       // 请求方式
+  //       method: http.RequestMethod.GET,
+  //
+  //       // 可选，默认为60s
+  //       connectTimeout: 60000,
+  //       // 可选，默认为60s
+  //       readTimeout: 60000,
+  //       // 开发者根据自身业务需要添加header字段
+  //       header: {
+  //         'Content-Type': 'application/json'
+  //       },
+  //
+  //     }, (err, data) => {
+  //     if (err) {
+  //       //请求失嫩
+  //       console.info("==== downloadFile_HTTP error code:" + err.code)
+  //       console.info("==== downloadFile_HTTP error message:" + err.message)
+  //     } else {
+  //
+  //
+  //       // TODO 怎么把下载的数据读出来？？？
+  //       setTimeout(()=>{
+  //         this.subtitleText = data.result.toString()
+  //         if(this.subtitleText != '')
+  //         console.info('==== 字幕：'+  123)
+  //       },10)
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //     }
+  //   })
+  //
+  // }
+  //
 
 }
 
