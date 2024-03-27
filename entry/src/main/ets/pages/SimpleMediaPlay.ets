@@ -153,7 +153,7 @@ struct Play {
 
       Column() {
 
-        Column() {
+        Flex({ direction: FlexDirection.Column }) {
 
           // 文本全屏or缩回按钮
           Row() {
@@ -179,7 +179,7 @@ struct Play {
             subtitleText: this.subtitleText
           })
             //.height('95%')
-            .width('95%')
+            .width('100%')
 
         }
 

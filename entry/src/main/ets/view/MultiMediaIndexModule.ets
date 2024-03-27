@@ -14,8 +14,8 @@ export struct MultiMediaModule {
   public token: string = '';
   @Consume training: Array<Training>;
 
-  aboutToAppear() {
-    PreferencesUtil.getToken().then((value) => {
+  async aboutToAppear() {
+    await PreferencesUtil.getToken().then((value) => {
       this.token = value
     });
 
@@ -211,7 +211,7 @@ struct HorizontalItem {
         setTimeout(() => {
           this.subtitleText = data.result.toString()
           if (this.subtitleText != '')
-            console.info('==== 字幕：' + 123)
+            console.info('==== 字幕：' + this.subtitleText.substring(0,50))
         }, 10)
 
 
