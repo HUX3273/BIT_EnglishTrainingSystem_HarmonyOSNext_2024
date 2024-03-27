@@ -5,6 +5,8 @@ import { Training } from '../model/Training';
 import PreferencesUtil from '../common/database/PreferencesUtil';
 import CommonConstants from '../common/constants/CommonConstants';
 import http from '@ohos.net.http';
+import util from '@ohos.util';
+import buffer from '@ohos.buffer';
 
 
 // 视频与音频
@@ -66,7 +68,6 @@ export struct MultiMediaModule {
     .backgroundColor('#ffef9494')
   }
 }
-
 
 
 //
@@ -195,9 +196,7 @@ struct HorizontalItem {
         // 可选，默认为60s
         readTimeout: 60000,
         // 开发者根据自身业务需要添加header字段
-        header: {
-          'Content-Type': 'application/json'
-        },
+
 
       }, (err, data) => {
       if (err) {
@@ -207,12 +206,27 @@ struct HorizontalItem {
       } else {
 
 
-        // TODO 怎么把下载的数据读出来
-        setTimeout(() => {
+        // 根据返回值的类型把下载的数据读出来
+        console.info('==== 返回结果类型：'+ data.resultType)
+
+        // string类型
+        if(data.resultType == 0){
           this.subtitleText = data.result.toString()
           if (this.subtitleText != '')
-            console.info('==== 字幕：' + this.subtitleText.substring(0,50))
-        }, 10)
+            console.info('==== 字幕：' + this.subtitleText.substring(0, 100))
+        }
+
+        // arrayBuffer类型
+        if(data.resultType == 2){
+
+          let textDecoder = new util.TextDecoder("utf-8"); //解决中文乱码的问题，文件是什么编码格式括号里就写什么格式
+          this.subtitleText = textDecoder.decode(new Uint8Array(data.result as ArrayBuffer))
+
+
+
+          if (this.subtitleText != '')
+            console.info('==== 字幕：' + this.subtitleText.substring(0, 100))
+        }
 
 
       }

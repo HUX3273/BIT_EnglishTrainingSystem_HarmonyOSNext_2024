@@ -10,20 +10,22 @@ import PreferencesUtil from '../../common/database/PreferencesUtil';
 struct EyePage {
   @State title: string = '磨眼睛'
 
-  @State token: string = (router.getParams() as Record<string, Object>).token as string;
+  token: string = (router.getParams() as Record<string, Object>).token as string;
 
   @Provide training:Array<Training> = []
+
 
   backToMainPage():void{
     router.replaceUrl({
       url: 'pages/MainPage',
     });
+
   }
 
 
-  onPageShow() {
+  async aboutToAppear() {
 
-    PreferencesUtil.getToken().then((value) => {
+    await PreferencesUtil.getToken().then((value) => {
       this.token = value
     });
 

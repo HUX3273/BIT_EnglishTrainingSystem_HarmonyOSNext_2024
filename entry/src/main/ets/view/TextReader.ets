@@ -16,7 +16,7 @@ export struct TextReader {
   @Provide chosenWordIndex: number = 0;
 
   // 正则表达式
-  private rExpForSplit:RegExp = /[ \n\t]/; //用于分词
+  private rExpForSplit:RegExp = /[ \n\t><#=+@$%^&*]/; //用于分词
   private rExpForPunctuation: RegExp = /[.。!！?？]/;     //用于检测符号换行
   private rExpForWord: RegExp = /[a-zA-Z0-9]+/;   //用于提取单词
   //private rExpForNewline: RegExp = /[A-Z]/;  //用于匹配大写首字母然后换行

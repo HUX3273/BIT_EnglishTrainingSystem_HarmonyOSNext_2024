@@ -10,7 +10,8 @@ import { Training } from '../../model/Training';
 @Component
 struct EarPage {
   @State title: string = '磨耳朵'
-  @State token: string = (router.getParams() as Record<string, Object>).token as string;
+
+  token: string = (router.getParams() as Record<string, Object>).token as string;
 
   @Provide training:Array<Training> = []
 
@@ -22,9 +23,9 @@ struct EarPage {
   }
 
 
-  onPageShow() {
+  async aboutToAppear() {
 
-    PreferencesUtil.getToken().then((value) => {
+    await PreferencesUtil.getToken().then((value) => {
       this.token = value
     });
 

@@ -10,7 +10,7 @@ import PreferencesUtil from '../../common/database/PreferencesUtil';
 struct MouthPage {
   @State title: string = '磨嘴巴'
 
-  @Provide token: string = (router.getParams() as Record<string, Object>).token as string;
+  token: string = (router.getParams() as Record<string, Object>).token as string;
 
   @Provide training:Array<Training> = []
 
@@ -19,12 +19,13 @@ struct MouthPage {
     router.replaceUrl({
       url: 'pages/MainPage',
     });
+
   }
 
 
-  aboutToAppear() {
+  async aboutToAppear() {
 
-    PreferencesUtil.getToken().then((value) => {
+    await PreferencesUtil.getToken().then((value) => {
       this.token = value
     });
 
