@@ -6,16 +6,21 @@ import connection from '@ohos.net.connection';
 import cryptoFramework from '@ohos.security.cryptoFramework';
 import { AddToShinyCardDialog } from './AddToShinyCard';
 import { VideoPlayer } from './MediaPlayer';
+import PreferencesUtil from '../common/database/PreferencesUtil';
+import { FlashCard } from '../model/FlashCard';
+import prompt from '@ohos.prompt';
 
 
 @CustomDialog
 export struct WordTranslatorDialog {
-
-  private audioSrc:string = 'http://music.163.com/song/media/outer/url?id=447925558.mp3';
-  @Link word: string;   // 单词
+  @Link word: string; // 单词
+  private audioSrc: string = 'http://music.163.com/song/media/outer/url?id=447925558.mp3';
   @State transResult_chinese: string = '';
   @Consume isChosenArr: Array<Boolean>;
   @Consume chosenWordIndex: number;
+  @Link token: string;
+  private isWordTranslatable: string = "false";
+  @State flashCard: FlashCard = new FlashCard(0, '', '', '', '', '', '', false, [], [], []) //存取到单词的一系列数据
 
   // 发音控制器
   pronunciationController: VideoController = new VideoController();
@@ -43,9 +48,10 @@ export struct WordTranslatorDialog {
   cancel: () => void
   confirm: () => void
 
-
-  aboutToAppear() {
-    this.getTranslation();  // TODO 改成从后端获取翻译结果和音频信息
+  async aboutToAppear() {
+    // 前端测试方法，改成从后端获取翻译结果和音频信息
+    // this.getTranslation();
+    this.isWordTranslatable_HTTP()
 
   }
 
@@ -56,16 +62,13 @@ export struct WordTranslatorDialog {
     this.dialogController_shinyCard = undefined // 将dialogController置空
   }
 
-
-
-
   build() {
     Column() {
 
-      Column(){
-        Row(){
+      Column() {
+        Row() {
 
-          Row(){
+          Row() {
             // 单词
             Text(this.word)
               .fontSize(30)
@@ -73,18 +76,36 @@ export struct WordTranslatorDialog {
               .margin({ left: 20 })
 
             // 播放读音
-            VideoPlayer({
-              videoSrc: this.audioSrc,
-              controller: this.pronunciationController,
-              mediaType: '我的发音'
-            })
-              .width(35)
-              .height(35)
-              .margin({ left: 10 })
+            Column() {
+              Video({
+                src: this.flashCard.ttsUrl,
+                controller: this.pronunciationController
+              })
+                .width(0)
+                .height(0)
+                .backgroundColor('#000000')
+                .controls(false)
+                .autoPlay(false)
+                .objectFit(ImageFit.Contain)
+                .loop(false)
+                .onError(() => {
+                  prompt.showToast({
+                    duration: 5000,
+                    message: '请检查网络'
+                  });
+                })
+              Image($r('app.media.pronounce'))
+                .height(35)
+                .width(35)
+                .margin({ left: 10 })
+                .onClick(() => {
 
+                  console.info("==== 发音链接：" + this.flashCard.ttsUrl)
+                  this.pronunciationController.start();
+                })
+            }
           }
           .height(60)
-
 
 
           // 添加到闪卡
@@ -92,7 +113,7 @@ export struct WordTranslatorDialog {
             .height(25)
             .width(25)
             .margin({ top: 10, bottom: 10, right: 20 })
-            .onClick(()=>{
+            .onClick(() => {
 
               // 弹出闪卡添加窗口
               this.dialogController_shinyCard.open()
@@ -105,10 +126,10 @@ export struct WordTranslatorDialog {
 
 
         // 中文释义
-        Text(this.transResult_chinese)
+        Text(this.flashCard.cnDescription)
           .fontSize(20)
           .fontWeight(FontWeight.Medium)
-          .margin({ top: 10, bottom: 10, left: 20 })
+          .margin({ bottom: 10, left: 10,right:10 })
 
 
       }
@@ -116,18 +137,18 @@ export struct WordTranslatorDialog {
       .width('100%')
 
 
-
       // 单词对应的图片
-      Image($r('app.media.icon'))
-        .height(150)
-        .width(150)
+      Image(this.flashCard.images[0])
+        .width(300)
+        .height(200)
+        .borderRadius(20)
 
 
       // 单词的英文释义
-      Text('####英文释义待获取####')
+      Text(this.flashCard.enDescription)
         .fontSize(20)
-        .fontWeight(FontWeight.Bold)
-        .margin({ bottom: 20 })
+        .fontWeight(FontWeight.Medium)
+        .margin({ top: 10, bottom: 10, left: 10,right:10 })
 
       // // 确认取消键
       // Flex({ justifyContent: FlexAlign.SpaceAround }) {
@@ -144,79 +165,170 @@ export struct WordTranslatorDialog {
       // }.margin({ bottom: 10 })
 
 
-
     }
     .width("100%")
     // dialog默认的borderRadius为24vp，如果需要使用border属性，请和borderRadius属性一起使用。
   }
 
 
-  //调用百度翻译api获取单词的翻译
-  //前端方案弃用
-  getTranslation() {
+  // 判断单词是否可翻译
+  isWordTranslatable_HTTP() {
 
-    // 合成url中需要的sign
-    var q: string = this.word
-    var from: string = 'en'
-    var to: string = 'zh'
-    var appid: string = '20240229001977712' //自己账户的app id
+    console.info("==== 判断单词是否可翻译")
+    console.info("==== token:" + this.token)
+    let url = CommonConstants.API_HOST + "client/api/flashcard/translatable?word=" + this.word
+    let httpRequest_isWordTranslatable = http.createHttp();
+    httpRequest_isWordTranslatable.request(
+      // 请求url地址
+      url,
+      {
+        // 请求方式
+        method: http.RequestMethod.GET,
 
-    var salt: string //盐，随机数就行
-    var rand = cryptoFramework.createRandom();
-    rand.generateRandom(1, (err, randData) => {
+        // 可选，默认为60s
+        connectTimeout: 60000,
+        // 可选，默认为60s
+        readTimeout: 60000,
+        // 开发者根据自身业务需要添加header字段
+        header: {
+          'Cookie': 'SESSION_ID=' + this.token,
+          'Content-Type': 'application/json'
+
+        },
+
+      }, (err, data) => {
       if (err) {
-        console.info("====[Callback] err: " + err.code);
+        // 请求失败
+        console.info("==== isWordTranslatable_HTTP error code:" + err.code)
+        console.info("==== isWordTranslatable_HTTP error message:" + err.message)
       } else {
-        console.info("====[Callback]: generate random result: " + randData.data);
-        salt = randData.data.toString()
-      }
-    });
 
-    var token: string = 'gOD4WdYD430IqUQ2C1oY' //秘钥
-    var sign: string = CryptoJS.MD5( appid + q + salt + token )
-    console.info('====md5=' + sign)
+        // 请求成功
+        this.isWordTranslatable = data.result as string
+        console.info("==== 能否翻译：" + this.isWordTranslatable)
 
-    //合成url
-    //let testUrl = 'q=apple&from=en&to=zh&appid=20240229001977712&salt=123&sign=8372fbbb3813a255e3f62cabd17cc4ac'
-    let requestUrl =
-      CommonConstants.baidufanyi_base_url
-      + 'q=' + q
-      + '&from=' + from
-      + '&to=' + to
-      + '&appid=' + appid
-      + '&salt=' + salt
-      + '&sign=' + sign
+        if (this.isWordTranslatable == "true") {
+          this.translateWord_HTTP()
+
+        }
 
 
-    // 发出get请求
-    http.createHttp().request(requestUrl, {
-      method: http.RequestMethod.GET,
-      connectTimeout: 60000,
-      readTimeout: 60000
-
-    }, (err, data) => {
-      if (err) {
-        //请求失败
-        console.info("====error code:" + err.code)
-        console.info("====error message:" + err.message)
-      } else {
-        //请求成功
-        var json_string = JSON.stringify(data.result)
-
-        var httpResponse = JSON.parse(JSON.parse(json_string))
-
-        var transResult = httpResponse.trans_result[0].dst
-
-        console.info("====翻译结果:" + transResult)
-
-        this.transResult_chinese = transResult;
-
-        // this.audioSrc = ''
       }
     })
 
   }
 
+  // 取单词翻译相关数据
+  translateWord_HTTP() {
+
+    console.info("==== 取单词翻译相关数据")
+    console.info("==== token:" + this.token)
+    let url = CommonConstants.API_HOST + "client/api/flashcard/translate?word=" + this.word
+    let httpRequest_translateWord = http.createHttp();
+    httpRequest_translateWord.request(
+      // 请求url地址
+      url,
+      {
+        // 请求方式
+        method: http.RequestMethod.GET,
+
+        // 可选，默认为60s
+        connectTimeout: 60000,
+        // 可选，默认为60s
+        readTimeout: 60000,
+        // 开发者根据自身业务需要添加header字段
+        header: {
+          'Cookie': 'SESSION_ID=' + this.token,
+          'Content-Type': 'application/json'
+
+        },
+
+      }, (err, data) => {
+      if (err) {
+        // 请求失败
+        console.info("==== translateWord_HTTP error code:" + err.code)
+        console.info("==== translateWord_HTTP error message:" + err.message)
+      } else {
+
+        // 请求成功
+        let json_string = JSON.stringify(data.result)
+
+        this.flashCard = JSON.parse(JSON.parse(json_string))
+
+        console.info("==== 单词相关数据：" + this.flashCard.cnDescription)
+
+
+      }
+    })
+
+  }
+
+
+  // 接入后端后前端方案弃用，仅作前端测试
+  // 调用百度翻译api获取单词的翻译
+  // getTranslation() {
+  //
+  //   // 合成url中需要的sign
+  //   var q: string = this.word
+  //   var from: string = 'en'
+  //   var to: string = 'zh'
+  //   var appid: string = '20240229001977712' //自己账户的app id
+  //
+  //   var salt: string //盐，随机数就行
+  //   var rand = cryptoFramework.createRandom();
+  //   rand.generateRandom(1, (err, randData) => {
+  //     if (err) {
+  //       console.info("====[Callback] err: " + err.code);
+  //     } else {
+  //       console.info("====[Callback]: generate random result: " + randData.data);
+  //       salt = randData.data.toString()
+  //     }
+  //   });
+  //
+  //   var token: string = 'gOD4WdYD430IqUQ2C1oY' //秘钥
+  //   var sign: string = CryptoJS.MD5( appid + q + salt + token )
+  //   console.info('====md5=' + sign)
+  //
+  //   //合成url
+  //   //let testUrl = 'q=apple&from=en&to=zh&appid=20240229001977712&salt=123&sign=8372fbbb3813a255e3f62cabd17cc4ac'
+  //   let requestUrl =
+  //     CommonConstants.baidufanyi_base_url
+  //     + 'q=' + q
+  //     + '&from=' + from
+  //     + '&to=' + to
+  //     + '&appid=' + appid
+  //     + '&salt=' + salt
+  //     + '&sign=' + sign
+  //
+  //
+  //   // 发出get请求
+  //   http.createHttp().request(requestUrl, {
+  //     method: http.RequestMethod.GET,
+  //     connectTimeout: 60000,
+  //     readTimeout: 60000
+  //
+  //   }, (err, data) => {
+  //     if (err) {
+  //       //请求失败
+  //       console.info("====error code:" + err.code)
+  //       console.info("====error message:" + err.message)
+  //     } else {
+  //       //请求成功
+  //       var json_string = JSON.stringify(data.result)
+  //
+  //       var httpResponse = JSON.parse(JSON.parse(json_string))
+  //
+  //       var transResult = httpResponse.trans_result[0].dst
+  //
+  //       console.info("====翻译结果:" + transResult)
+  //
+  //       this.transResult_chinese = transResult;
+  //
+  //       // this.audioSrc = ''
+  //     }
+  //   })
+  //
+  // }
 
 
   public onCancel() {
@@ -234,7 +346,4 @@ export struct WordTranslatorDialog {
     this.isChosenArr[this.chosenWordIndex] = false //取消选中后解除单词的选中状态
 
   }
-
-
-
 }

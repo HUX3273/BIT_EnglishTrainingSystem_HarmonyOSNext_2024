@@ -1,3 +1,5 @@
+// 用户数据
+
 export class UserInfo {
   id: number
   nickname: string

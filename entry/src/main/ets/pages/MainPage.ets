@@ -25,12 +25,12 @@ struct MainPage {
     });
   }
 
-  onPageShow() {
-    PreferencesUtil.getUserName().then((value) => {
+  async aboutToAppear() {
+    await PreferencesUtil.getUserName().then((value) => {
       this.userName = value;
     });
 
-    PreferencesUtil.getToken().then((value) => {
+    await PreferencesUtil.getToken().then((value) => {
       this.token = value
     });
 

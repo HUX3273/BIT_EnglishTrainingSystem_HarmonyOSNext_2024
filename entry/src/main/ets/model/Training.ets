@@ -1,3 +1,5 @@
+// 练习资源数据
+
 export class Training {
   id: number
   contentType: string

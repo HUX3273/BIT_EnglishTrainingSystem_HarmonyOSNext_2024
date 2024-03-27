@@ -1,5 +1,6 @@
 import util from '@ohos.util';
 import Prompt from '@system.prompt';
+import PreferencesUtil from '../common/database/PreferencesUtil';
 import { WordTranslatorDialog } from '../view/WordTranslator'
 import { AddToShinyCardDialog } from './AddToShinyCard';
 
@@ -9,8 +10,10 @@ export struct TextReader {
   private videoName: string;
   @State count: number = 0;
   @State caption: string = '';
-  @State wordArr: Array<string> = []; //存分词后的结果
-  @State word: string = ''; //去除标点符号后的单词
+  @State wordArr: Array<string> = []; // 存分词后的结果
+  @State word: string = ''; // 去除标点符号等非法字符后的英文单词
+
+  @State token: string = ''
 
   @Provide isChosenArr: Array<Boolean> = []; //存该分词是否被选中
   @Provide chosenWordIndex: number = 0;
@@ -33,6 +36,7 @@ export struct TextReader {
       cancel: this.onCancel,
       confirm: this.onAccept,
       word: $word,
+      token: $token
 
     }),
     cancel: this.existApp,
@@ -43,25 +47,13 @@ export struct TextReader {
     customStyle: false
   })
 
-  // //新建添加到闪卡的窗口控制器
-  // dialogController_shinyCard: CustomDialogController = new CustomDialogController({
-  //   builder: AddToShinyCardDialog({
-  //     cancel: this.onCancel,
-  //     confirm: this.onAccept,
-  //     word: $word,
-  //
-  //   }),
-  //   cancel: this.existApp,
-  //   autoCancel: true,
-  //   alignment: DialogAlignment.Center,
-  //   offset: { dx: 0, dy: -20 },
-  //   gridCount: 4,
-  //   customStyle: false
-  // })
 
 
-  // 读测试的字幕文件
-  aboutToAppear() {
+  async aboutToAppear() {
+
+    await PreferencesUtil.getToken().then((value) => {
+      this.token = value
+    });
 
     //this.readfile_from_rawfile();
 
@@ -88,16 +80,10 @@ export struct TextReader {
   }
 
   build() {
+
     Scroll(this.scroller) {
 
       Column() {
-        //Text(this.mediaName)
-        // Text(this.caption)
-        //   .fontSize(20)
-
-
-        // Text(this.subtitleText)
-        // .fontSize(50)
 
         Text() {
           ForEach(this.wordArr, (item: string, index: number) => {
@@ -165,9 +151,6 @@ export struct TextReader {
               Span(' ') //添加空格
             }
 
-
-
-
           })
 
         }
@@ -176,6 +159,8 @@ export struct TextReader {
 
     }
   }
+
+
 
   public onCancel() {
     console.info('====Callback when the first button is clicked')
@@ -194,19 +179,20 @@ export struct TextReader {
   }
 
 
-  //从rawfile中取字幕文件
-  async readfile_from_rawfile() {
-    try {
-      let uint8Array = await globalThis.context.resourceManager.getRawFileContent('rawfile/test.txt');
-      //let str = String.fromCharCode.apply(null, new Uint8Array(uint8Array.buffer));
-      let textDecoder = new util.TextDecoder("utf-8"); //解决中文乱码的问题，文件是什么编码格式括号里就写什么格式
-      let str = textDecoder.decode(new Uint8Array(uint8Array));
-
-      this.caption = str;
-
-    } catch (error) {
-      console.info("====Error Happened While Reading Files From Raw Files!")
-
-    }
-  }
+  //  仅供本地测试，接入后端后废弃
+  // 从rawfile中取字幕文件
+  // async readfile_from_rawfile() {
+  //   try {
+  //     let uint8Array = await globalThis.context.resourceManager.getRawFileContent('rawfile/test.txt');
+  //     //let str = String.fromCharCode.apply(null, new Uint8Array(uint8Array.buffer));
+  //     let textDecoder = new util.TextDecoder("utf-8"); //解决中文乱码的问题，文件是什么编码格式括号里就写什么格式
+  //     let str = textDecoder.decode(new Uint8Array(uint8Array));
+  //
+  //     this.caption = str;
+  //
+  //   } catch (error) {
+  //     console.info("====Error Happened While Reading Files From Raw Files!")
+  //
+  //   }
+  // }
 }

@@ -6,7 +6,7 @@ import { VideoSlider } from './MediaPlaySlider';
  */
 @Component
 export struct VideoPlayer {
-  private videoSrc: string | Resource = '';
+  videoSrc: string ;
   private controller: VideoController = new VideoController();
   private previewUris: Resource = $r('app.string.empty');
   private mediaType: string = '';
@@ -29,10 +29,6 @@ export struct VideoPlayer {
     } else if (this.mediaType == '我的音频') {
       this.mainPlayerHeight = '0%'
       this.mainPlayerBackgroundColor = '#ff8bcdff'
-    } else if (this.mediaType == '我的发音') {
-      this.mainPlayerHeight = '0%'
-      this.mainPlayerBackgroundColor = '#ffffff'
-
     }
   }
 
@@ -79,14 +75,6 @@ export struct VideoPlayer {
           .height(this.mediaType == '我的视频' ? '10%' : '100%')
       }
 
-      if(this.mediaType == '我的发音'){
-        Image($r('app.media.pronounce'))
-          .height(35)
-          .width(35)
-          .onClick(()=>{
-            this.controller.start();
-          })
-      }
 
 
     }
