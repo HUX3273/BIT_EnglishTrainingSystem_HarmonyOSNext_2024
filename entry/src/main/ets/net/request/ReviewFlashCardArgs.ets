@@ -1,10 +1,10 @@
 export class ReviewFlashCardArgs {
-  pid: number
+  id: number
   reviewResult: string
 
-  constructor(pid: number,
+  constructor(id: number,
               reviewResult: string) {
-    this.pid = pid
+    this.id = id
     this.reviewResult = reviewResult
   }
 }

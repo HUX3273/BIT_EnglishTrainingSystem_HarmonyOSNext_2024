@@ -24,6 +24,8 @@ export struct AddToShinyCardDialog {
 
   @Link word: string; // 单词
   @Link token: string;
+
+
   @State httpPicSrcArr: Array<string> = []; // 存http获取的图片链接
   @State chosenPicSrcArr: Array<string> = []; // 存选中的的图片链接
   // private imagesUrl: Array<string> ;
@@ -242,10 +244,9 @@ export struct AddToShinyCardDialog {
   }
 
 
-  // 存数据到
+  // 添加闪卡（全新单词才能用此接口）
   addFlashCard_HTTP(imagesUrl: Array<string>) {
 
-    // todo 添加闪卡
 
     console.info('==== 添加闪卡')
 
@@ -284,26 +285,30 @@ export struct AddToShinyCardDialog {
         // let json_string = JSON.stringify(data.result)
         //
         // this.training = JSON.parse(JSON.parse(json_string))
-        console.info("==== responseCod:" + data.responseCode)
-        console.info("==== resultType:" + data.resultType)
-        console.info("==== result:" + data.result)
+        // console.info("==== responseCod:" + data.responseCode)
+        // console.info("==== resultType:" + data.resultType)
+        // console.info("==== result:" + data.result)
 
         if(data.responseCode == 200){
           console.info("==== 添加闪卡成功！")
+          promptAction.showToast({
+            message:"添加闪卡成功！"
+          })
+
         } else {
           console.info("==== 添加闪卡失败")
+          promptAction.showDialog({
+            message:"添加失败，请稍后重试......"
+          })
         }
-
-
 
       }
 
     })
 
-
-
-
   }
+
+  // TODO 更新闪卡的接口
 
 
 

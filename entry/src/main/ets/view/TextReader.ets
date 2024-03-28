@@ -2,34 +2,19 @@ import util from '@ohos.util';
 import Prompt from '@system.prompt';
 import PreferencesUtil from '../common/database/PreferencesUtil';
 import { WordTranslatorDialog } from '../view/WordTranslator'
-import { AddToShinyCardDialog } from './AddToShinyCard';
+
 
 
 @Component
 export struct TextReader {
-  private videoName: string;
   @State count: number = 0;
   @State caption: string = '';
   @State wordArr: Array<string> = []; // 存分词后的结果
   @State word: string = ''; // 去除标点符号等非法字符后的英文单词
-
   @State token: string = ''
-
   @Provide isChosenArr: Array<Boolean> = []; //存该分词是否被选中
   @Provide chosenWordIndex: number = 0;
-
-  // 正则表达式
-  private rExpForSplit:RegExp = /[ \n\t><#=+@$%^&*]/; //用于分词
-  private rExpForPunctuation: RegExp = /[.。!！?？]/;     //用于检测符号换行
-  private rExpForWord: RegExp = /[a-zA-Z0-9]+/;   //用于提取单词
-  //private rExpForNewline: RegExp = /[A-Z]/;  //用于匹配大写首字母然后换行
-
   scroller: Scroller = new Scroller();
-
-
-  private subtitleText:string;
-
-
   //新建单击查词的窗口控制器
   dialogController_translator: CustomDialogController = new CustomDialogController({
     builder: WordTranslatorDialog({
@@ -46,8 +31,13 @@ export struct TextReader {
     gridCount: 4,
     customStyle: false
   })
-
-
+  private videoName: string;
+  // 正则表达式
+  private rExpForSplit: RegExp = /[ \n\t><#=+@$%^&*]/; //用于分词
+  //private rExpForNewline: RegExp = /[A-Z]/;  //用于匹配大写首字母然后换行
+  private rExpForPunctuation: RegExp = /[.。!！?？]/; //用于检测符号换行
+  private rExpForWord: RegExp = /[a-zA-Z0-9]+/; //用于提取单词
+  private subtitleText: string;
 
   async aboutToAppear() {
 
@@ -94,7 +84,7 @@ export struct TextReader {
               .onClick(() => {
 
 
-                if(item.match(this.rExpForWord) != null){
+                if (item.match(this.rExpForWord) != null) {
 
 
                   this.chosenWordIndex = index;
@@ -119,29 +109,28 @@ export struct TextReader {
                 }
 
               })
-              /*
-                  span功能极其有限，不支持长按！！！
-               */
-              //
-              // .gesture(
-              //   // 绑定可以重复触发的LongPressGesture
-              //   LongPressGesture({ repeat: false })
-              //     .onAction((event: GestureEvent) => {
-              //
-              //         this.chosenWordIndex = index;
-              //         this.isChosenArr[index] = true
-              //
-              //         this.word = item.match(this.rExpForWord)[0]
-              //
-              //         console.info('====您长按了单词：', this.word)
-              //
-              //         //弹出闪卡添加窗口
-              //         this.dialogController_shinyCard.open()
-              //
-              //
-              //     })
-              // )
-
+            /*
+                span功能极其有限，不支持长按！！！
+             */
+            //
+            // .gesture(
+            //   // 绑定可以重复触发的LongPressGesture
+            //   LongPressGesture({ repeat: false })
+            //     .onAction((event: GestureEvent) => {
+            //
+            //         this.chosenWordIndex = index;
+            //         this.isChosenArr[index] = true
+            //
+            //         this.word = item.match(this.rExpForWord)[0]
+            //
+            //         console.info('====您长按了单词：', this.word)
+            //
+            //         //弹出闪卡添加窗口
+            //         this.dialogController_shinyCard.open()
+            //
+            //
+            //     })
+            // )
 
 
             // 将单词排版成完整的文本
@@ -159,8 +148,6 @@ export struct TextReader {
 
     }
   }
-
-
 
   public onCancel() {
     console.info('====Callback when the first button is clicked')

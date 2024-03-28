@@ -1,4 +1,4 @@
-
+// 仅作前端单独测试使用
 @Observed
 
 export class ShinyCardWord {

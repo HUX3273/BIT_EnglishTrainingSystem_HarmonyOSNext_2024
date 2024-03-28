@@ -13,11 +13,21 @@ import prompt from '@ohos.prompt';
 
 @CustomDialog
 export struct WordTranslatorDialog {
-  @Link word: string; // 单词
+
   private audioSrc: string = 'http://music.163.com/song/media/outer/url?id=447925558.mp3';
   @State transResult_chinese: string = '';
   @Consume isChosenArr: Array<Boolean>;
   @Consume chosenWordIndex: number;
+
+
+
+  @Link word: string; // 单词
+  @Link token: string;
+
+  private isWordTranslatable: string = "false";
+  @State flashCard: FlashCard = new FlashCard(0, '', '', '', '', '', '', false, [], [], []) //存取到单词的一系列数据
+
+
 
   // 发音控制器
   pronunciationController: VideoController = new VideoController();
@@ -42,10 +52,6 @@ export struct WordTranslatorDialog {
   cancel: () => void
   confirm: () => void
 
-
-  @Link token: string;
-  private isWordTranslatable: string = "false";
-  @State flashCard: FlashCard = new FlashCard(0, '', '', '', '', '', '', false, [], [], []) //存取到单词的一系列数据
 
 
   async aboutToAppear() {
@@ -104,6 +110,9 @@ export struct WordTranslatorDialog {
                   this.pronunciationController.start();
                 })
             }
+
+
+
           }
           .height(60)
 
@@ -341,13 +350,6 @@ export struct WordTranslatorDialog {
   // 闪卡添加界面点击了确认添加
   public onAccept() {
     console.info('====Callback when the second button is clicked')
-
-
-    // todo 添加闪卡
-    // 从 AddToShinyCard 取出 选中图片的 url
-
-
-
     this.isChosenArr[this.chosenWordIndex] = false //取消选中后解除单词的选中状态
   }
 
