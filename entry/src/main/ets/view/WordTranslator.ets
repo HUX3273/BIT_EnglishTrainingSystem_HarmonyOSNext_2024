@@ -344,7 +344,7 @@ export struct WordTranslatorDialog {
 
 
     // todo 添加闪卡
-
+    // 从 AddToShinyCard 取出 pic url
 
 
 
