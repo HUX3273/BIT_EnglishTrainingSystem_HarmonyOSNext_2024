@@ -1,6 +1,9 @@
 import router from '@ohos.router';
+import http from '@ohos.net.http';
+import { StudyList } from '../../model/StudyList';
 import { VideoPlayer } from '../../view/MediaPlayer';
 import { ShinyCardWords } from '../../viewmodel/ShinyCardWords';
+import CommonConstants from '../../common/constants/CommonConstants';
 
 @Entry
 @Component
@@ -14,10 +17,15 @@ struct ShinyCardPage {
   @Provide isLoading: boolean = false;
   @Provide progressVal: number = 0;
   @Provide flag: boolean = false;
-
-
   // 发音控制器
   pronunciationController: VideoController = new VideoController();
+
+
+  token: string = (router.getParams() as Record<string, Object>).token as string;
+
+  @Provide studyList:Array<StudyList> = []  // 存从http获取的今日闪卡数据
+
+
 
   backToMainPage(): void {
     router.replaceUrl({
@@ -247,6 +255,54 @@ struct ShinyCardPage {
     // }
 
   }
+
+
+  getFlashCardStudyList_HTTP() {
+
+    console.info('==== 请求训练清单（音频）')
+    let httpRequest_getFlashCardStudyList = http.createHttp();
+    let url = CommonConstants.API_HOST + "client/api/flashcard/studyList"
+    httpRequest_getFlashCardStudyList.request(
+      // 请求url地址
+      url,
+      {
+        // 请求方式
+        method: http.RequestMethod.GET,
+
+        // 可选，默认为60s
+        connectTimeout: 60000,
+        // 可选，默认为60s
+        readTimeout: 60000,
+        // 开发者根据自身业务需要添加header字段
+        header: {
+          'Cookie': 'SESSION_ID=' + this.token,
+          'Content-Type': 'application/json'
+        },
+
+
+      }, (err, data) => {
+      if (err) {
+        // 请求失嫩
+        console.info("==== httpRequest_getFlashCardStudyList error code:" + err.code)
+        console.info("==== httpRequest_getFlashCardStudyList error message:" + err.message)
+      } else {
+        // 请求成功
+        let json_string = JSON.stringify(data.result)
+
+        this.studyList = JSON.parse(JSON.parse(json_string))
+
+        // console.info("==== LIST result:"+this.training[0].id)
+        // console.info("==== LIST result:"+this.training[0].clientUser.nickname)
+        // console.info("==== LIST result:"+this.training[0].clientUserResourceFile.ossPath)
+
+
+      }
+
+    })
+
+
+  }
+
 
 
 }

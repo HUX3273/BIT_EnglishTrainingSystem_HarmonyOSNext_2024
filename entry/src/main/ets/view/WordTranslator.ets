@@ -24,8 +24,8 @@ export struct WordTranslatorDialog {
   //新建添加到闪卡的窗口控制器
   dialogController_shinyCard: CustomDialogController = new CustomDialogController({
     builder: AddToShinyCardDialog({
-      cancel: this.onCancel,
-      confirm: this.onAccept,
+      onCancel: this.onCancel,
+      onAccept: this.onAccept,
       word: $word,
       token: $token
 
@@ -152,10 +152,10 @@ export struct WordTranslatorDialog {
 
       // // 确认取消键
       // Flex({ justifyContent: FlexAlign.SpaceAround }) {
-      //   Button('cancel')
+      //   Button('onCancel')
       //     .onClick(() => {
       //       this.controller.close()
-      //       this.cancel()
+      //       this.onCancel()
       //     }).backgroundColor(0xffffff).fontColor(Color.Black)
       //   Button('confirm')
       //     .onClick(() => {

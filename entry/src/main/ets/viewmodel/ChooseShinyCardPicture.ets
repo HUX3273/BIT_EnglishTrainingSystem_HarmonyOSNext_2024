@@ -1,10 +1,7 @@
-/**
- * shiny card picture class.
+/*
+仅供前端独立测试时使用
  */
 @Observed
-/*
-
- */
 export class ShinyCardPictureItem {
   id: number; //
   picSrc: string; // 图源

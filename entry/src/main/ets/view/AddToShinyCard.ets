@@ -7,6 +7,7 @@ import cryptoFramework from '@ohos.security.cryptoFramework';
 import { ShinyCardPictureItem, ShinyCardPictures } from '../viewmodel/ChooseShinyCardPicture';
 import promptAction from '@ohos.promptAction';
 import util from '@ohos.util';
+import { AddFlashCardArgs } from '../net/request/AddFlashCardArgs';
 
 
 @CustomDialog
@@ -18,12 +19,14 @@ export struct AddToShinyCardDialog {
   //@Consume chosenWordIndex: number;
   controller: CustomDialogController
   // 若尝试在CustomDialog中传入多个其他的Controller，以实现在CustomDialog中打开另一个或另一些CustomDialog，那么此处需要将指向自己的controller放在最后
-  cancel: () => void
-  confirm: () => void
+  onCancel: () => void
+  onAccept: () => void
+
   @Link word: string; // 单词
   @Link token: string;
   @State httpPicSrcArr: Array<string> = []; // 存http获取的图片链接
   @State chosenPicSrcArr: Array<string> = []; // 存选中的的图片链接
+  // private imagesUrl: Array<string> ;
   @State isChosenArr: Array<Boolean> = [false, false, false, false, false, false,
     false, false, false, false, false, false,
     false, false, false, false, false, false,
@@ -123,6 +126,8 @@ export struct AddToShinyCardDialog {
                     }
                   }
 
+
+
                 })
 
               }
@@ -152,7 +157,7 @@ export struct AddToShinyCardDialog {
           .fontSize(20)
           .onClick(() => {
             this.controller.close()
-            this.cancel()
+            this.onCancel()
           })
           .backgroundColor('#F8F8F8')
           .fontColor('#8D8D8D')
@@ -162,8 +167,13 @@ export struct AddToShinyCardDialog {
         Button('添加')
           .fontSize(20)
           .onClick(() => {
+
+            // 添加闪卡
+            this.addFlashCard_HTTP(this.chosenPicSrcArr)
+
+            this.onAccept()
+
             this.controller.close()
-            this.confirm()
           })
           .backgroundColor('#EC5706')
           .fontColor(Color.White)
@@ -228,6 +238,70 @@ export struct AddToShinyCardDialog {
 
       }
     })
+
+  }
+
+
+  // 存数据到
+  addFlashCard_HTTP(imagesUrl: Array<string>) {
+
+    // todo 添加闪卡
+
+    console.info('==== 添加闪卡')
+
+
+    // BODY
+    let addFlashCardArgs: string = JSON.stringify(new AddFlashCardArgs(this.word,imagesUrl))
+
+    let httpRequest_addFlashCard = http.createHttp();
+    let url = CommonConstants.API_HOST + "client/api/flashcard"
+    httpRequest_addFlashCard.request(
+      // 请求url地址
+      url,
+      {
+        // 请求方式
+        method: http.RequestMethod.POST,
+
+        // 可选，默认为60s
+        connectTimeout: 60000,
+        // 可选，默认为60s
+        readTimeout: 60000,
+        // 开发者根据自身业务需要添加header字段
+        header: {
+          'Cookie': 'SESSION_ID=' + this.token,
+          'Content-Type': 'application/json'
+        },
+        // 请求的额外数据。
+        extraData: addFlashCardArgs
+
+      }, (err, data) => {
+      if (err) {
+        // 请求失嫩
+        console.info("==== addFlashCard_HTTP error code:" + err.code)
+        console.info("==== addFlashCard_HTTP error message:" + err.message)
+      } else {
+        // 请求成功
+        // let json_string = JSON.stringify(data.result)
+        //
+        // this.training = JSON.parse(JSON.parse(json_string))
+        console.info("==== responseCod:" + data.responseCode)
+        console.info("==== resultType:" + data.resultType)
+        console.info("==== result:" + data.result)
+
+        if(data.responseCode == 200){
+          console.info("==== 添加闪卡成功！")
+        } else {
+          console.info("==== 添加闪卡失败")
+        }
+
+
+
+      }
+
+    })
+
+
+
 
   }
 
