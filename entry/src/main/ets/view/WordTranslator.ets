@@ -18,20 +18,16 @@ export struct WordTranslatorDialog {
   @State transResult_chinese: string = '';
   @Consume isChosenArr: Array<Boolean>;
   @Consume chosenWordIndex: number;
-  @Link token: string;
-  private isWordTranslatable: string = "false";
-  @State flashCard: FlashCard = new FlashCard(0, '', '', '', '', '', '', false, [], [], []) //存取到单词的一系列数据
 
   // 发音控制器
   pronunciationController: VideoController = new VideoController();
-
-
   //新建添加到闪卡的窗口控制器
   dialogController_shinyCard: CustomDialogController = new CustomDialogController({
     builder: AddToShinyCardDialog({
       cancel: this.onCancel,
       confirm: this.onAccept,
       word: $word,
+      token: $token
 
     }),
     cancel: this.existApp,
@@ -41,12 +37,16 @@ export struct WordTranslatorDialog {
     gridCount: 4,
     customStyle: false
   })
-
-
   // 本窗口自己的控制器（若尝试在CustomDialog中传入多个其他的Controller，以实现在CustomDialog中打开另一个或另一些CustomDialog，那么此处需要将指向自己的controller放在最后）
   controller: CustomDialogController
   cancel: () => void
   confirm: () => void
+
+
+  @Link token: string;
+  private isWordTranslatable: string = "false";
+  @State flashCard: FlashCard = new FlashCard(0, '', '', '', '', '', '', false, [], [], []) //存取到单词的一系列数据
+
 
   async aboutToAppear() {
     // 前端测试方法，改成从后端获取翻译结果和音频信息
@@ -127,9 +127,9 @@ export struct WordTranslatorDialog {
 
         // 中文释义
         Text(this.flashCard.cnDescription)
-          .fontSize(20)
+          .fontSize(18)
           .fontWeight(FontWeight.Medium)
-          .margin({ bottom: 10, left: 10,right:10 })
+          .margin({ bottom: 10, left: 20,right:20 })
 
 
       }
@@ -146,9 +146,9 @@ export struct WordTranslatorDialog {
 
       // 单词的英文释义
       Text(this.flashCard.enDescription)
-        .fontSize(20)
+        .fontSize(18)
         .fontWeight(FontWeight.Medium)
-        .margin({ top: 10, bottom: 10, left: 10,right:10 })
+        .margin({ top: 10, bottom: 20, left: 20,right:20 })
 
       // // 确认取消键
       // Flex({ justifyContent: FlexAlign.SpaceAround }) {
@@ -331,13 +331,23 @@ export struct WordTranslatorDialog {
   // }
 
 
+  // 闪卡添加界面点击了取消
   public onCancel() {
     console.info('====Callback when the first button is clicked')
     this.isChosenArr[this.chosenWordIndex] = false //取消选中后解除单词的选中状态
   }
 
+
+  // 闪卡添加界面点击了确认添加
   public onAccept() {
     console.info('====Callback when the second button is clicked')
+
+
+    // todo 添加闪卡
+
+
+
+
     this.isChosenArr[this.chosenWordIndex] = false //取消选中后解除单词的选中状态
   }
 
